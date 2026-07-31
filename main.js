@@ -343,6 +343,7 @@ function createWindow() {
     width: 1250,
     height: 850,
     icon: path.join(__dirname, 'icon.png'),
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -350,6 +351,7 @@ function createWindow() {
     }
   });
 
+  mainWindow.setMenu(null);
   mainWindow.loadFile('index.html');
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
