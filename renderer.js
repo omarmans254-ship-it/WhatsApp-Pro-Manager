@@ -280,26 +280,7 @@ function applyLanguage(lang) {
   async function initNetwork() {
       const savedMode = localStorage.getItem('wa_sync_mode') || 'LOCAL';
       const savedIp = localStorage.getItem('wa_sync_ip') || '';
-      
       await window.electronAPI.setSyncMode(savedMode, savedIp);
-      
-      if (savedMode === 'SERVER') {
-          const ip = await window.electronAPI.getLocalIp();
-          serverIpDisplay.textContent = ip + ':9998';
-          serverIpDisplay.style.display = 'block';
-          startServerBtn.textContent = i18n[currentLang].btn_start_server_active;
-          disconnectSyncBtn.style.display = 'flex';
-      } else if (savedMode === 'CLIENT') {
-          serverIpInput.value = savedIp;
-          connectClientBtn.textContent = i18n[currentLang].btn_client_active;
-          disconnectSyncBtn.style.display = 'flex';
-          checkForLANUpdates(savedIp);
-      } else {
-          serverIpDisplay.style.display = 'none';
-          startServerBtn.textContent = i18n[currentLang].start_server_btn;
-          connectClientBtn.textContent = i18n[currentLang].connect_client_btn;
-          disconnectSyncBtn.style.display = 'none';
-      }
   }
   
   displayAppVersion();
@@ -372,9 +353,13 @@ function applyLanguage(lang) {
       });
   }
 
-  openNetworkBtn.addEventListener('click', () => networkModal.classList.add('active'));
-  closeNetworkBtn.addEventListener('click', () => networkModal.classList.remove('active'));
-  networkModal.addEventListener('click', (e) => { if (e.target === networkModal) networkModal.classList.remove('active'); });
+  const openNetworkBtn = document.getElementById('network-btn');
+  const closeNetworkBtn = document.getElementById('close-network-btn');
+  const networkModal = document.getElementById('network-modal');
+
+  if (openNetworkBtn && networkModal) openNetworkBtn.addEventListener('click', () => networkModal.classList.add('active'));
+  if (closeNetworkBtn && networkModal) closeNetworkBtn.addEventListener('click', () => networkModal.classList.remove('active'));
+  if (networkModal) networkModal.addEventListener('click', (e) => { if (e.target === networkModal) networkModal.classList.remove('active'); });
 
   const autoDiscoverBtn = document.getElementById('auto-discover-btn');
   const testConnBtn = document.getElementById('test-conn-btn');
@@ -444,34 +429,45 @@ function applyLanguage(lang) {
       });
   }
 
-  startServerBtn.addEventListener('click', async () => {
-      localStorage.setItem('wa_sync_mode', 'SERVER');
-      localStorage.setItem('wa_sync_ip', '');
-      await initNetwork();
-      showToast(i18n[currentLang].toast_server_started, 'success');
-  });
+  const startServerBtn = document.getElementById('start-server-btn');
+  const connectClientBtn = document.getElementById('connect-client-btn');
+  const disconnectSyncBtn = document.getElementById('disconnect-sync-btn');
+  const serverIpInput = document.getElementById('server-ip-input');
 
-  connectClientBtn.addEventListener('click', async () => {
-      const ip = serverIpInput.value.trim();
-      if (!ip) return showToast(i18n[currentLang].toast_ip_required, 'error');
-      
-      localStorage.setItem('wa_sync_mode', 'CLIENT');
-      localStorage.setItem('wa_sync_ip', ip);
-      await initNetwork();
-      showToast(i18n[currentLang].toast_connected, 'success');
-      
-      // Fetch immediately
-      accounts = await window.electronAPI.getAccounts();
-      renderAccounts();
-      updateDashboardStats();
-  });
+  if (startServerBtn) {
+      startServerBtn.addEventListener('click', async () => {
+          localStorage.setItem('wa_sync_mode', 'SERVER');
+          localStorage.setItem('wa_sync_ip', '');
+          await initNetwork();
+          showToast(i18n[currentLang].toast_server_started, 'success');
+      });
+  }
 
-  disconnectSyncBtn.addEventListener('click', async () => {
-      localStorage.setItem('wa_sync_mode', 'LOCAL');
-      localStorage.setItem('wa_sync_ip', '');
-      await initNetwork();
-      showToast(i18n[currentLang].toast_disconnected, 'info');
-  });
+  if (connectClientBtn && serverIpInput) {
+      connectClientBtn.addEventListener('click', async () => {
+          const ip = serverIpInput.value.trim();
+          if (!ip) return showToast(i18n[currentLang].toast_ip_required, 'error');
+          
+          localStorage.setItem('wa_sync_mode', 'CLIENT');
+          localStorage.setItem('wa_sync_ip', ip);
+          await initNetwork();
+          showToast(i18n[currentLang].toast_connected, 'success');
+          
+          // Fetch immediately
+          accounts = await window.electronAPI.getAccounts();
+          renderAccounts();
+          updateDashboardStats();
+      });
+  }
+
+  if (disconnectSyncBtn) {
+      disconnectSyncBtn.addEventListener('click', async () => {
+          localStorage.setItem('wa_sync_mode', 'LOCAL');
+          localStorage.setItem('wa_sync_ip', '');
+          await initNetwork();
+          showToast(i18n[currentLang].toast_disconnected, 'info');
+      });
+  }
 
   const connectedClientsDisplay = document.getElementById('connected-clients-display');
 
