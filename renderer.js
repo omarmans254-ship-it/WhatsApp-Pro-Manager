@@ -297,6 +297,24 @@ function applyLanguage(lang) {
   if (cancelModalBtn) cancelModalBtn.addEventListener('click', () => modal.classList.remove('active'));
   if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
+  // Global Keyboard Shortcuts
+  document.addEventListener('keydown', (e) => {
+      // Escape to close modal
+      if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+          modal.classList.remove('active');
+      }
+      // Ctrl+F to focus search
+      if (e.ctrlKey && e.key === 'f') {
+          e.preventDefault();
+          if (searchInput) searchInput.focus();
+      }
+      // Ctrl+N to add new account
+      if (e.ctrlKey && e.key === 'n') {
+          e.preventDefault();
+          if (openModalBtn) openModalBtn.click();
+      }
+  });
+
   if (submitAccountBtn) {
       submitAccountBtn.addEventListener('click', async () => {
           let name = newAccountNameInput.value.trim();
