@@ -86,18 +86,7 @@ function applyLanguage(lang) {
   let isSettingPin = false;
   let isChangingPin = false;
 
-  if (changePinBtn) {
-      changePinBtn.addEventListener('click', () => {
-          isChangingPin = true;
-          isSettingPin = true;
-          currentPin = '';
-          updateDots();
-          vaultTitle.textContent = currentLang === 'ar' ? 'تغيير الرمز السري' : 'Change PIN';
-          vaultSubtitle.textContent = currentLang === 'ar' ? 'أدخل 4 أرقام لرمزك السري الجديد' : 'Enter 4 digits for your new PIN';
-          vaultContainer.style.display = 'flex';
-          mainApp.style.display = 'none';
-      });
-  }
+
 
   async function checkSecurityState() {
       if (vaultContainer) vaultContainer.style.display = 'none';
