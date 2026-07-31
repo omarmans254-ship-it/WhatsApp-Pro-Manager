@@ -244,36 +244,13 @@ function applyLanguage(lang) {
           applyLanguage(currentLang === 'ar' ? 'en' : 'ar');
       });
   }
-  applyLanguage(currentLang);  // --- Network Sync System ---
-  const networkModal = document.getElementById('network-modal');
-  const openNetworkBtn = document.getElementById('network-btn');
-  const closeNetworkBtn = document.getElementById('close-network-btn');
+  applyLanguage(currentLang);
   
-  const startServerBtn = document.getElementById('start-server-btn');
-  const connectClientBtn = document.getElementById('connect-client-btn');
-  const disconnectSyncBtn = document.getElementById('disconnect-sync-btn');
-  const serverIpDisplay = document.getElementById('server-ip-display');
-  const serverIpInput = document.getElementById('server-ip-input');
-
   async function displayAppVersion() {
       try {
           const version = await window.electronAPI.getAppVersion();
           const badge = document.getElementById('app-version-badge');
           if (badge) badge.textContent = 'v' + version;
-      } catch(e) {}
-  }
-
-  async function checkForLANUpdates(ip) {
-      if (!ip) return;
-      try {
-          const updateRes = await window.electronAPI.checkAppUpdate(ip);
-          if (updateRes && updateRes.hasUpdate) {
-              const msg = currentLang === 'ar' 
-                  ? `تم الكشف عن تحديث جديد (v${updateRes.serverVersion}) على سيرفر الشركة! جاري التثبيت التلقائي...` 
-                  : `New update (v${updateRes.serverVersion}) detected on LAN Server! Installing...`;
-              addLog(i18n[currentLang].log_sys, msg, 'success');
-              showToast(msg, 'success');
-          }
       } catch(e) {}
   }
 
@@ -352,161 +329,6 @@ function applyLanguage(lang) {
           if (e.key === 'Enter' && submitAccountBtn) submitAccountBtn.click();
       });
   }
-
-  const openNetworkBtn = document.getElementById('network-btn');
-  const closeNetworkBtn = document.getElementById('close-network-btn');
-  const networkModal = document.getElementById('network-modal');
-
-  if (openNetworkBtn && networkModal) openNetworkBtn.addEventListener('click', () => networkModal.classList.add('active'));
-  if (closeNetworkBtn && networkModal) closeNetworkBtn.addEventListener('click', () => networkModal.classList.remove('active'));
-  if (networkModal) networkModal.addEventListener('click', (e) => { if (e.target === networkModal) networkModal.classList.remove('active'); });
-
-  const autoDiscoverBtn = document.getElementById('auto-discover-btn');
-  const testConnBtn = document.getElementById('test-conn-btn');
-  const connectionStatusMsg = document.getElementById('connection-status-msg');
-
-  if (autoDiscoverBtn) {
-      autoDiscoverBtn.addEventListener('click', async () => {
-          autoDiscoverBtn.textContent = '⏳ جاري البحث...';
-          autoDiscoverBtn.disabled = true;
-          try {
-              const res = await window.electronAPI.autoDiscoverServer();
-              if (res.success && res.ip) {
-                  serverIpInput.value = res.ip;
-                  if (connectionStatusMsg) {
-                      connectionStatusMsg.style.display = 'block';
-                      connectionStatusMsg.style.color = 'var(--neon-green)';
-                      connectionStatusMsg.textContent = `✔️ تم العثور على السيرفر! IP: ${res.ip}`;
-                  }
-                  showToast(`تم اكتشاف السيرفر بنجاح (${res.ip})`, 'success');
-              } else {
-                  if (connectionStatusMsg) {
-                      connectionStatusMsg.style.display = 'block';
-                      connectionStatusMsg.style.color = '#ff4500';
-                      connectionStatusMsg.textContent = `❌ ${res.error || 'لم يتم العثور على سيرفر نشط'}`;
-                  }
-                  showToast(res.error || 'لم يتم العثور على سيرفر نشط', 'error');
-              }
-          } catch(e) {
-              showToast('حدث خطأ أثناء البحث عن السيرفر', 'error');
-          } finally {
-              autoDiscoverBtn.textContent = '🔍 البحث التلقائي عن السيرفر';
-              autoDiscoverBtn.disabled = false;
-          }
-      });
-  }
-
-  if (testConnBtn) {
-      testConnBtn.addEventListener('click', async () => {
-          const ip = serverIpInput.value.trim();
-          if (!ip) return showToast('يرجى كتابة أو اختيار الـ IP أولاً', 'error');
-          
-          testConnBtn.textContent = '⏳ جاري الفحص...';
-          testConnBtn.disabled = true;
-          try {
-              const res = await window.electronAPI.testConnection(ip);
-              if (res.success) {
-                  if (connectionStatusMsg) {
-                      connectionStatusMsg.style.display = 'block';
-                      connectionStatusMsg.style.color = 'var(--neon-green)';
-                      connectionStatusMsg.textContent = `✔️ الاتصال بنجاح مع السيرفر! الإصدار: v${res.version}`;
-                  }
-                  showToast(`الاتصال بالسيرفر ممتاز (v${res.version})`, 'success');
-              } else {
-                  if (connectionStatusMsg) {
-                      connectionStatusMsg.style.display = 'block';
-                      connectionStatusMsg.style.color = '#ff4500';
-                      connectionStatusMsg.textContent = `❌ تعذر الاتصال: ${res.error || 'السيرفر غير مستجيب'}`;
-                  }
-                  showToast('تعذر الاتصال بالسيرفر، تأكد أن السيرفر يعمل وحالة جدار الحماية متصلة بنفس الـ Wi-Fi', 'error');
-              }
-          } catch(e) {
-              showToast('خطأ في فحص الاتصال', 'error');
-          } finally {
-              testConnBtn.textContent = '⚡ فحص الاتصال';
-              testConnBtn.disabled = false;
-          }
-      });
-  }
-
-  const startServerBtn = document.getElementById('start-server-btn');
-  const connectClientBtn = document.getElementById('connect-client-btn');
-  const disconnectSyncBtn = document.getElementById('disconnect-sync-btn');
-  const serverIpInput = document.getElementById('server-ip-input');
-
-  if (startServerBtn) {
-      startServerBtn.addEventListener('click', async () => {
-          localStorage.setItem('wa_sync_mode', 'SERVER');
-          localStorage.setItem('wa_sync_ip', '');
-          await initNetwork();
-          showToast(i18n[currentLang].toast_server_started, 'success');
-      });
-  }
-
-  if (connectClientBtn && serverIpInput) {
-      connectClientBtn.addEventListener('click', async () => {
-          const ip = serverIpInput.value.trim();
-          if (!ip) return showToast(i18n[currentLang].toast_ip_required, 'error');
-          
-          localStorage.setItem('wa_sync_mode', 'CLIENT');
-          localStorage.setItem('wa_sync_ip', ip);
-          await initNetwork();
-          showToast(i18n[currentLang].toast_connected, 'success');
-          
-          // Fetch immediately
-          accounts = await window.electronAPI.getAccounts();
-          renderAccounts();
-          updateDashboardStats();
-      });
-  }
-
-  if (disconnectSyncBtn) {
-      disconnectSyncBtn.addEventListener('click', async () => {
-          localStorage.setItem('wa_sync_mode', 'LOCAL');
-          localStorage.setItem('wa_sync_ip', '');
-          await initNetwork();
-          showToast(i18n[currentLang].toast_disconnected, 'info');
-      });
-  }
-
-  const connectedClientsDisplay = document.getElementById('connected-clients-display');
-
-  async function updateConnectedClientsCount() {
-      if (localStorage.getItem('wa_sync_mode') === 'SERVER') {
-          try {
-              const res = await window.electronAPI.getConnectedClients();
-              if (connectedClientsDisplay) {
-                  connectedClientsDisplay.style.display = 'block';
-                  const text = currentLang === 'ar' 
-                      ? `🔌 الأجهزة المتصلة بالسيرفر الآن: ${res.count} ${res.count === 1 ? 'جهاز' : 'أجهزة'}`
-                      : `🔌 Active Connected Clients: ${res.count}`;
-                  connectedClientsDisplay.textContent = text;
-              }
-          } catch(e) {}
-      } else if (connectedClientsDisplay) {
-          connectedClientsDisplay.style.display = 'none';
-      }
-  }
-
-  // Auto-sync & Client Counter Loop (3 seconds)
-  setInterval(async () => {
-      const syncMode = localStorage.getItem('wa_sync_mode');
-      const savedIp = localStorage.getItem('wa_sync_ip');
-      if (syncMode === 'SERVER') {
-          updateConnectedClientsCount();
-      } else if (syncMode === 'CLIENT' && savedIp) {
-          try {
-              const fetchedAccounts = await window.electronAPI.getAccounts();
-              if (fetchedAccounts && Array.isArray(fetchedAccounts) && JSON.stringify(fetchedAccounts) !== JSON.stringify(accounts)) {
-                  accounts = fetchedAccounts;
-                  renderAccounts();
-                  updateDashboardStats();
-              }
-              checkForLANUpdates(savedIp);
-          } catch(e) {}
-      }
-  }, 3000);
-
 
   // --- Toast System ---
   function showToast(message, type = 'info') {
