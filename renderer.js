@@ -263,26 +263,36 @@ function applyLanguage(lang) {
   displayAppVersion();
   initNetwork();
 
+  let isUpdating = false;
+
+  async function checkForInstantAutoUpdate(showNoUpdateToast = false) {
+      if (isUpdating) return;
+      try {
+          const res = await window.electronAPI.checkGitHubUpdate();
+          if (res && res.hasUpdate && res.downloadUrl) {
+              isUpdating = true;
+              showToast(currentLang === 'ar' ? `🚀 يتوفر تحديث جديد v${res.latestVersion}! جاري التنزيل والتثبيت التلقائي...` : `🚀 New update v${res.latestVersion} found! Auto-installing...`, 'success');
+              addLog(i18n[currentLang].log_sys, `تم اكتشاف تحديث v${res.latestVersion}. جاري التثبيت التلقائي...`, 'success');
+              const dlRes = await window.electronAPI.downloadAndInstallUpdate(res.downloadUrl);
+              if (!dlRes.success) {
+                  window.electronAPI.openExternal(res.downloadUrl);
+              }
+          } else if (showNoUpdateToast) {
+              showToast(currentLang === 'ar' ? `أنت تستخدم أحدث إصدار v${res.currentVersion || '1.0.0'}` : `You are using the latest version v${res.currentVersion || '1.0.0'}`, 'success');
+          }
+      } catch(e) {}
+  }
+
+  // Trigger instant check 2 seconds after startup
+  setTimeout(() => checkForInstantAutoUpdate(false), 2000);
+  // Check periodically every 5 minutes
+  setInterval(() => checkForInstantAutoUpdate(false), 300000);
+
   const githubUpdateBtn = document.getElementById('github-update-btn');
   if (githubUpdateBtn) {
       githubUpdateBtn.addEventListener('click', async () => {
           showToast(currentLang === 'ar' ? 'جاري فحص تحديثات GitHub...' : 'Checking GitHub updates...', 'info');
-          try {
-              const res = await window.electronAPI.checkGitHubUpdate();
-              if (res.hasUpdate) {
-                  showToast(currentLang === 'ar' ? `🚀 يتوفر تحديث v${res.latestVersion}! جاري التنزيل والتثبيت...` : `🚀 New update v${res.latestVersion} found! Downloading...`, 'success');
-                  if (res.downloadUrl) {
-                      const dlRes = await window.electronAPI.downloadAndInstallUpdate(res.downloadUrl);
-                      if (!dlRes.success) {
-                          window.electronAPI.openExternal(res.downloadUrl);
-                      }
-                  }
-              } else {
-                  showToast(currentLang === 'ar' ? `أنت تستخدم أحدث إصدار v${res.currentVersion || '1.0.0'}` : `You are using the latest version v${res.currentVersion || '1.0.0'}`, 'success');
-              }
-          } catch(e) {
-              showToast(currentLang === 'ar' ? 'تعذر الاتصال بـ GitHub' : 'Could not connect to GitHub', 'error');
-          }
+          await checkForInstantAutoUpdate(true);
       });
   }
 
