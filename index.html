@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="app_title">مدير واتساب المتقدم (Chrome Edition)</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Security Vault Lock Screen (Disabled) -->
+  <div id="security-vault" class="vault-container" style="display: none;">
+    <div class="vault-box">
+      <div class="vault-icon">
+        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+      </div>
+      <h2 id="vault-title" class="neon-text" data-i18n="vault_title">خزنة الأمان</h2>
+      <p id="vault-subtitle" style="color: var(--text-muted); margin-bottom: 20px;" data-i18n="vault_subtitle">الرجاء إدخال الرقم السري (PIN)</p>
+      
+      <div class="pin-display">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+
+      <div class="numpad">
+        <button class="num-btn" data-val="1">1</button>
+        <button class="num-btn" data-val="2">2</button>
+        <button class="num-btn" data-val="3">3</button>
+        <button class="num-btn" data-val="4">4</button>
+        <button class="num-btn" data-val="5">5</button>
+        <button class="num-btn" data-val="6">6</button>
+        <button class="num-btn" data-val="7">7</button>
+        <button class="num-btn" data-val="8">8</button>
+        <button class="num-btn" data-val="9">9</button>
+        <button class="num-btn btn-clear" id="pin-clear">C</button>
+        <button class="num-btn" data-val="0">0</button>
+        <button class="num-btn btn-enter" id="pin-enter">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container" id="main-app" style="display: flex;">
+    <!-- Sidebar -->
+    <div class="sidebar neon-panel">
+      <div class="sidebar-header">
+        <h2 class="neon-text" data-i18n="my_accounts">حساباتي</h2>
+        <button id="open-modal-btn" class="icon-btn neon-btn-icon" title="إضافة حساب جديد" data-i18n-title="add_account_btn">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="search-input" class="search-input" placeholder="ابحث بالاسم أو الرقم..." data-i18n-placeholder="search_placeholder">
+      </div>
+
+      <div class="multi-action-bar">
+        <label class="neon-checkbox-label">
+          <input type="checkbox" id="select-all-cb">
+          <span class="neon-checkbox"></span>
+          <span style="margin-right: 8px; font-size: 0.85rem; color: var(--text-muted);" data-i18n="select_all">تحديد الكل</span>
+        </label>
+        <button id="start-selected-btn" class="neon-btn-small" title="تشغيل الحسابات المحددة عبر متصفح كروم">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span data-i18n="start_chrome">تشغيل كروم</span>
+        </button>
+      </div>
+
+      <ul id="accounts-list">
+        <!-- Accounts will be dynamically added here -->
+      </ul>
+    </div>
+
+    <!-- Main Dashboard Area -->
+    <div class="main-content dashboard-container">
+      <div class="dashboard-header">
+        <div style="display: flex; gap: 20px; align-items: center;">
+          <div class="neon-logo-container">
+             <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.205.534 1.291.043.087.087.188.014.333-.072.145-.109.232-.253.384l-.275.275c-.144.145-.291.303-.13.582.161.278.715 1.182 1.536 1.918.665.596 1.405.86 1.636.969.23.109.36.087.491-.057.13-.144.573-.666.726-.893.153-.227.306-.188.508-.112.202.076 1.279.603 1.498.71.218.109.362.163.414.253.053.09.053.518-.091.923z"/></svg>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h1 class="neon-text" data-i18n="dashboard_title">لوحة التحكم (Dashboard)</h1>
+              <span id="app-version-badge" class="uptime-badge" style="font-size: 0.8rem; border-color: var(--neon-cyan); color: var(--neon-cyan);">v1.0.0</span>
+            </div>
+            <p style="color: var(--text-muted); margin-top: 5px;" data-i18n="dashboard_subtitle">يتم الآن تشغيل الحسابات في متصفحات خارجية لضمان أفضل أداء.</p>
+          </div>
+        </div>
+        <div class="header-actions">
+           <button id="lang-toggle-btn" class="neon-btn-small" style="color: #fff; border-color: #555;">English 🇺🇸</button>
+            <select id="theme-select" class="theme-select" title="تغيير الثيم (لون البرنامج)">
+                <option value="night" selected>موف</option>
+                <option value="gold">ذهبي</option>
+                <option value="fire">أحمر</option>
+                <option value="matrix">أخضر</option>
+                <option value="ice">سماوي</option>
+                <option value="sakura">وردي</option>
+                <option value="ghost">رمادي</option>
+                <option value="aurora">زمردي</option>
+                <option value="sunset">برتقالي</option>
+                <option value="ocean">أزرق</option>
+                <option value="espresso">بني</option>
+                <option value="synthwave">نيون</option>
+            </select>
+             <button id="github-update-btn" class="neon-btn-small" style="color: #00ff66; border-color: #00ff66;" title="فحص تحديثات GitHub">
+               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+               <span>GitHub Update</span>
+             </button>
+             <button id="network-btn" class="neon-btn-small" style="color: #00bfff; border-color: #00bfff;" title="إعدادات مزامنة الشبكة (LAN)">
+             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+             <span data-i18n="network_btn">الشبكة المحلية</span>
+           </button>
+            <button id="clean-cache-btn" class="neon-btn-small" style="color: #00ffcc; border-color: #00ffcc;" title="تنظيف الذاكرة المؤقتة (Cache)" data-i18n-title="clean_cache_title">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+              <span data-i18n="clean_cache_btn">تنظيف الذاكرة</span>
+            </button>
+            <button id="backup-btn" class="neon-btn-small" style="color: var(--neon-green); border-color: var(--neon-green);">
+             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+             <span data-i18n="backup_btn">نسخة احتياطية</span>
+           </button>
+            <button id="change-pin-btn" class="neon-btn-small" style="color: #ff9900; border-color: #ff9900;" title="تغيير الرقم السري (PIN)">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span data-i18n="change_pin_btn">تغيير PIN</span>
+            </button>
+            <button id="restore-btn" class="neon-btn-small" style="color: var(--neon-yellow); border-color: var(--neon-yellow);">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span data-i18n="restore_btn">استعادة البيانات</span>
+            </button>
+        </div>
+      </div>
+
+      <div class="dashboard-stats">
+        <div class="stat-card neon-panel">
+          <h3 data-i18n="total_accounts">إجمالي الحسابات</h3>
+          <div class="stat-value" id="total-accounts-count">0</div>
+        </div>
+        <div class="stat-card neon-panel">
+          <h3 data-i18n="active_accounts">الحسابات النشطة الآن</h3>
+          <div class="stat-value neon-text" id="active-accounts-count">0</div>
+        </div>
+        <div class="stat-card neon-panel" style="flex: 1.5; display: flex; align-items: center; justify-content: center; position: relative;">
+          <canvas id="analytics-chart" style="max-height: 140px;"></canvas>
+        </div>
+      </div>
+
+      <div class="dashboard-logs neon-panel">
+        <div class="logs-header">
+          <h3 data-i18n="system_logs">سجل النظام (System Logs)</h3>
+          <button id="clear-logs-btn" class="icon-btn" title="مسح السجل">
+             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
+        <div id="logs-container">
+          <!-- Logs go here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Account Modal -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal-content neon-panel">
+      <div class="modal-header">
+        <h3 class="neon-text" data-i18n="add_modal_title">إضافة حساب جديد</h3>
+        <button class="close-btn" id="close-modal-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <label for="new-account-name" data-i18n="account_name_label">اسم الحساب</label>
+          <input type="text" id="new-account-name" class="neon-input" placeholder="مثال: حساب العمل، خدمة العملاء..." data-i18n-placeholder="account_name_placeholder">
+        </div>
+        <div class="input-group">
+          <label for="new-account-number" data-i18n="account_phone_label">رقم الهاتف</label>
+          <input type="text" id="new-account-number" class="neon-input en-font" placeholder="+201xxxxxxxxx" dir="ltr">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="cancel-btn" id="cancel-modal-btn" data-i18n="cancel_btn">إلغاء</button>
+        <button class="neon-btn-primary" id="submit-account-btn" data-i18n="save_btn">حفظ وإضافة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network Modal -->
+  <div class="modal-overlay" id="network-modal">
+    <div class="modal-content neon-panel">
+      <div class="modal-header">
+        <h3 class="neon-text" data-i18n="network_modal_title">إعدادات المزامنة المحلية (LAN)</h3>
+        <button class="close-btn" id="close-network-btn">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: right;">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;" data-i18n="network_modal_subtitle">
+          مزامنة الحسابات بين الأجهزة في نفس الشركة (بدون إنترنت).
+        </p>
+        
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+           <h4 style="margin-bottom: 10px; color: var(--neon-cyan);" data-i18n="server_title">🖥️ الجهاز الرئيسي (السيرفر)</h4>
+           <button id="start-server-btn" class="neon-btn-small" style="width: 100%; justify-content: center; margin-bottom: 10px;" data-i18n="start_server_btn">تشغيل كسيرفر أساسي</button>
+           <p id="server-ip-display" style="font-family: monospace; color: var(--neon-green); text-align: center; display: none; font-size: 1.1rem; padding: 10px; border: 1px dashed var(--neon-green);"></p>
+           <p id="connected-clients-display" style="color: var(--neon-cyan); text-align: center; display: none; font-size: 0.95rem; margin-top: 10px; font-weight: 600;"></p>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+           <h4 style="margin-bottom: 10px; color: var(--neon-cyan);" data-i18n="client_title">💻 الارتباط كسيرفر فرعي (عميل)</h4>
+           <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+             <button id="auto-discover-btn" class="neon-btn-small" style="flex: 1; justify-content: center; font-size: 0.82rem; background: rgba(0, 229, 255, 0.15);" data-i18n="auto_discover_btn">🔍 البحث التلقائي عن السيرفر</button>
+             <button id="test-conn-btn" class="neon-btn-small" style="flex: 1; justify-content: center; font-size: 0.82rem; background: rgba(0, 230, 118, 0.15);" data-i18n="test_conn_btn">⚡ فحص الاتصال</button>
+           </div>
+           <div class="input-group">
+             <label for="server-ip-input" data-i18n="server_ip_label">أدخل الـ IP الخاص بالجهاز الرئيسي:</label>
+             <input type="text" id="server-ip-input" class="search-input en-font" placeholder="مثال: 192.168.1.5" data-i18n-placeholder="server_ip_placeholder" dir="ltr">
+           </div>
+           <p id="connection-status-msg" style="display: none; font-size: 0.85rem; margin-top: 6px; text-align: center; font-weight: bold;"></p>
+           <button id="connect-client-btn" class="neon-btn-primary" style="width: 100%; margin-top: 10px;" data-i18n="connect_client_btn">ارتباط بالسيرفر</button>
+        </div>
+
+        <button id="disconnect-sync-btn" class="neon-btn-small" style="width: 100%; justify-content: center; margin-top: 20px; color: #ff4500; border-color: #ff4500; display: none;" data-i18n="disconnect_btn">إلغاء المزامنة والعودة للوضع المحلي</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
