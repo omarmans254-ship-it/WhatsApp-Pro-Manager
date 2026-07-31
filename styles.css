@@ -1160,14 +1160,14 @@ body {
 
 /* 1. موف (Royal Mauve Velvet Silk - Default) */
 [data-theme="night"], :root {
-  --neon-cyan: #c77dff;
-  --neon-cyan-dim: rgba(199, 125, 255, 0.28);
-  --neon-green-glow: rgba(157, 78, 221, 0.85);
-  --neon-glow-strong: 0 0 25px rgba(181, 23, 158, 0.75), 0 0 50px rgba(123, 44, 191, 0.5);
+  --neon-cyan: #e0aaff;
+  --neon-cyan-dim: rgba(224, 170, 255, 0.3);
+  --neon-green-glow: rgba(157, 78, 221, 0.9);
+  --neon-glow-strong: 0 0 25px rgba(199, 125, 255, 0.8), 0 0 50px rgba(123, 44, 191, 0.6);
   --bg-darker: #10002b;
-  --bg-panel: rgba(36, 0, 70, 0.72);
-  --border-subtle: rgba(199, 125, 255, 0.32);
-  --bg-body: radial-gradient(circle at 50% -20%, #7b2cbf 0%, #3c096c 45%, #240046 75%, #10002b 100%);
+  --bg-panel: rgba(36, 0, 70, 0.65);
+  --border-subtle: rgba(224, 170, 255, 0.35);
+  --bg-body: linear-gradient(rgba(16, 0, 43, 0.35), rgba(16, 0, 43, 0.55)), url('purple_silk_bg.png') center/cover no-repeat;
 }
 
 /* 2. ذهبي (Gold Luxury) */
