@@ -310,10 +310,13 @@ function applyLanguage(lang) {
 
   if (submitAccountBtn) {
       submitAccountBtn.addEventListener('click', async () => {
-          const name = newAccountNameInput.value.trim();
-          const phone = newAccountNumberInput.value.trim();
+          let name = newAccountNameInput.value.trim();
+          let phone = newAccountNumberInput.value.trim();
 
-          if (!name) return showToast(i18n[currentLang].toast_fill_fields, 'error');
+          // If user didn't enter a name, use phone number as name
+          if (!name) name = phone;
+          
+          if (!name && !phone) return showToast(i18n[currentLang].toast_fill_fields, 'error');
 
           const newAccount = {
               id: 'acc_' + Date.now(),
@@ -321,14 +324,20 @@ function applyLanguage(lang) {
               phone: phone || ''
           };
 
-          accounts.push(newAccount);
-          localStorage.setItem('whatsapp_accounts_v2', JSON.stringify(accounts));
-          await window.electronAPI.saveAccounts(accounts);
-          renderAccounts();
-          updateDashboardStats();
-          modal.classList.remove('active');
-          showToast(i18n[currentLang].toast_account_added, 'success');
-          addLog(i18n[currentLang].log_sys, `تم إضافة حساب جديد: ${name}`, 'success');
+          try {
+              if (!accounts) accounts = [];
+              accounts.push(newAccount);
+              localStorage.setItem('whatsapp_accounts_v2', JSON.stringify(accounts));
+              await window.electronAPI.saveAccounts(accounts);
+              renderAccounts();
+              updateDashboardStats();
+              modal.classList.remove('active');
+              showToast(i18n[currentLang].toast_account_added, 'success');
+              addLog(i18n[currentLang].log_sys, `تم إضافة حساب جديد: ${name}`, 'success');
+          } catch(e) {
+              console.error(e);
+              showToast('Error saving account: ' + e.message, 'error');
+          }
       });
   }
 
