@@ -291,6 +291,9 @@ function applyLanguage(lang) {
           newAccountNameInput.value = '';
           newAccountNumberInput.value = '';
           modal.classList.add('active');
+          setTimeout(() => {
+            if (newAccountNumberInput) newAccountNumberInput.focus();
+          }, 100);
       });
   }
   if (closeModalBtn) closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
@@ -338,6 +341,11 @@ function applyLanguage(lang) {
               await window.electronAPI.saveAccounts(accounts);
               renderAccounts();
               updateDashboardStats();
+              
+              // Reset input values
+              newAccountNameInput.value = '';
+              newAccountNumberInput.value = '';
+              
               modal.classList.remove('active');
               showToast(i18n[currentLang].toast_account_added, 'success');
               addLog(i18n[currentLang].log_sys, `تم إضافة حساب جديد: ${name}`, 'success');

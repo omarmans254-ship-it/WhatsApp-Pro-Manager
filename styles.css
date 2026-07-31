@@ -1161,121 +1161,145 @@ body {
 /* 1. موف (Royal Mauve - Default) */
 [data-theme="night"], :root {
   --neon-cyan: #c77dff;
-  --neon-cyan-dim: rgba(199, 125, 255, 0.18);
-  --neon-green-glow: rgba(157, 78, 221, 0.7);
+  --neon-cyan-dim: rgba(199, 125, 255, 0.22);
+  --neon-green-glow: rgba(199, 125, 255, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(199, 125, 255, 0.6), 0 0 40px rgba(157, 78, 221, 0.3);
   --bg-darker: #0d0714;
-  --bg-panel: rgba(22, 13, 36, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #2a0845 0%, #0d0714 85%);
+  --bg-panel: rgba(22, 13, 36, 0.65);
+  --border-subtle: rgba(199, 125, 255, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #3a0ca3 0%, #17082c 50%, #0d0714 100%);
 }
 
 /* 2. ذهبي (Gold Luxury) */
 [data-theme="gold"] {
   --neon-cyan: #ffb703;
-  --neon-cyan-dim: rgba(255, 183, 3, 0.18);
-  --neon-green-glow: rgba(255, 183, 3, 0.7);
+  --neon-cyan-dim: rgba(255, 183, 3, 0.22);
+  --neon-green-glow: rgba(255, 183, 3, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(255, 183, 3, 0.6), 0 0 40px rgba(251, 133, 0, 0.3);
   --bg-darker: #120e06;
-  --bg-panel: rgba(31, 23, 10, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #3d2c06 0%, #120e06 85%);
+  --bg-panel: rgba(31, 23, 10, 0.65);
+  --border-subtle: rgba(255, 183, 3, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #543d04 0%, #241a04 50%, #120e06 100%);
 }
 
 /* 3. أحمر (Cyber Red) */
 [data-theme="fire"] {
   --neon-cyan: #ff2a5f;
-  --neon-cyan-dim: rgba(255, 42, 95, 0.18);
-  --neon-green-glow: rgba(255, 42, 95, 0.7);
+  --neon-cyan-dim: rgba(255, 42, 95, 0.22);
+  --neon-green-glow: rgba(255, 42, 95, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(255, 42, 95, 0.6), 0 0 40px rgba(201, 24, 74, 0.3);
   --bg-darker: #14060a;
-  --bg-panel: rgba(33, 10, 17, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #420818 0%, #14060a 85%);
+  --bg-panel: rgba(33, 10, 17, 0.65);
+  --border-subtle: rgba(255, 42, 95, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #590d22 0%, #2b0610 50%, #14060a 100%);
 }
 
 /* 4. أخضر (Matrix Green) */
 [data-theme="matrix"] {
   --neon-cyan: #00ff66;
-  --neon-cyan-dim: rgba(0, 255, 102, 0.18);
-  --neon-green-glow: rgba(0, 255, 102, 0.7);
+  --neon-cyan-dim: rgba(0, 255, 102, 0.22);
+  --neon-green-glow: rgba(0, 255, 102, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(0, 255, 102, 0.6), 0 0 40px rgba(52, 199, 89, 0.3);
   --bg-darker: #041209;
-  --bg-panel: rgba(8, 31, 16, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #063d1a 0%, #041209 85%);
+  --bg-panel: rgba(8, 31, 16, 0.65);
+  --border-subtle: rgba(0, 255, 102, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #084c23 0%, #042410 50%, #041209 100%);
 }
 
 /* 5. سماوي (Ice Blue) */
 [data-theme="ice"] {
   --neon-cyan: #00e5ff;
-  --neon-cyan-dim: rgba(0, 229, 255, 0.18);
-  --neon-green-glow: rgba(0, 229, 255, 0.7);
+  --neon-cyan-dim: rgba(0, 229, 255, 0.22);
+  --neon-green-glow: rgba(0, 229, 255, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(0, 229, 255, 0.6), 0 0 40px rgba(0, 180, 216, 0.3);
   --bg-darker: #040e14;
-  --bg-panel: rgba(8, 24, 36, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #062f45 0%, #040e14 85%);
+  --bg-panel: rgba(8, 24, 36, 0.65);
+  --border-subtle: rgba(0, 229, 255, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #074766 0%, #042233 50%, #040e14 100%);
 }
 
 /* 6. وردي (Sakura Pink) */
 [data-theme="sakura"] {
   --neon-cyan: #ff70a6;
-  --neon-cyan-dim: rgba(255, 112, 166, 0.18);
-  --neon-green-glow: rgba(255, 112, 166, 0.7);
+  --neon-cyan-dim: rgba(255, 112, 166, 0.22);
+  --neon-green-glow: rgba(255, 112, 166, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(255, 112, 166, 0.6), 0 0 40px rgba(255, 153, 200, 0.3);
   --bg-darker: #14070e;
-  --bg-panel: rgba(33, 12, 23, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #450c29 0%, #14070e 85%);
+  --bg-panel: rgba(33, 12, 23, 0.65);
+  --border-subtle: rgba(255, 112, 166, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #5c1339 0%, #2b081a 50%, #14070e 100%);
 }
 
 /* 7. رمادي (Ghost Gray) */
 [data-theme="ghost"] {
   --neon-cyan: #e0e0e0;
-  --neon-cyan-dim: rgba(224, 224, 224, 0.18);
-  --neon-green-glow: rgba(224, 224, 224, 0.6);
+  --neon-cyan-dim: rgba(224, 224, 224, 0.22);
+  --neon-green-glow: rgba(224, 224, 224, 0.65);
+  --neon-glow-strong: 0 0 20px rgba(224, 224, 224, 0.5), 0 0 40px rgba(160, 160, 160, 0.2);
   --bg-darker: #0c0d10;
-  --bg-panel: rgba(22, 24, 30, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #20242e 0%, #0c0d10 85%);
+  --bg-panel: rgba(22, 24, 30, 0.65);
+  --border-subtle: rgba(224, 224, 224, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #2b303c 0%, #15171d 50%, #0c0d10 100%);
 }
 
 /* 8. زمردي (Emerald Aurora) */
 [data-theme="aurora"] {
   --neon-cyan: #00f5d4;
-  --neon-cyan-dim: rgba(0, 245, 212, 0.18);
-  --neon-green-glow: rgba(0, 245, 212, 0.7);
+  --neon-cyan-dim: rgba(0, 245, 212, 0.22);
+  --neon-green-glow: rgba(0, 245, 212, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(0, 245, 212, 0.6), 0 0 40px rgba(0, 187, 166, 0.3);
   --bg-darker: #031412;
-  --bg-panel: rgba(6, 33, 30, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #05453e 0%, #031412 85%);
+  --bg-panel: rgba(6, 33, 30, 0.65);
+  --border-subtle: rgba(0, 245, 212, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #075950 0%, #042b26 50%, #031412 100%);
 }
 
 /* 9. برتقالي (Sunset Orange) */
 [data-theme="sunset"] {
   --neon-cyan: #ff6b35;
-  --neon-cyan-dim: rgba(255, 107, 53, 0.18);
-  --neon-green-glow: rgba(255, 107, 53, 0.7);
+  --neon-cyan-dim: rgba(255, 107, 53, 0.22);
+  --neon-green-glow: rgba(255, 107, 53, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(255, 107, 53, 0.6), 0 0 40px rgba(247, 127, 0, 0.3);
   --bg-darker: #140904;
-  --bg-panel: rgba(33, 15, 8, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #421e0b 0%, #140904 85%);
+  --bg-panel: rgba(33, 15, 8, 0.65);
+  --border-subtle: rgba(255, 107, 53, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #59250c 0%, #2b1105 50%, #140904 100%);
 }
 
 /* 10. أزرق (Ocean Blue) */
 [data-theme="ocean"] {
   --neon-cyan: #0096c7;
-  --neon-cyan-dim: rgba(0, 150, 199, 0.18);
-  --neon-green-glow: rgba(0, 150, 199, 0.7);
+  --neon-cyan-dim: rgba(0, 150, 199, 0.22);
+  --neon-green-glow: rgba(0, 150, 199, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(0, 150, 199, 0.6), 0 0 40px rgba(3, 4, 148, 0.3);
   --bg-darker: #030d17;
-  --bg-panel: rgba(6, 21, 38, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #04294a 0%, #030d17 85%);
+  --bg-panel: rgba(6, 21, 38, 0.65);
+  --border-subtle: rgba(0, 150, 199, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #063966 0%, #031a30 50%, #030d17 100%);
 }
 
 /* 11. بني (Espresso Bronze) */
 [data-theme="espresso"] {
   --neon-cyan: #d4a373;
-  --neon-cyan-dim: rgba(212, 163, 115, 0.18);
-  --neon-green-glow: rgba(212, 163, 115, 0.7);
+  --neon-cyan-dim: rgba(212, 163, 115, 0.22);
+  --neon-green-glow: rgba(212, 163, 115, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(212, 163, 115, 0.6), 0 0 40px rgba(204, 139, 94, 0.3);
   --bg-darker: #120c07;
-  --bg-panel: rgba(31, 20, 12, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #3d2616 0%, #120c07 85%);
+  --bg-panel: rgba(31, 20, 12, 0.65);
+  --border-subtle: rgba(212, 163, 115, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #4f321a 0%, #26180d 50%, #120c07 100%);
 }
 
 /* 12. نيون (Synthwave Pink) */
 [data-theme="synthwave"] {
   --neon-cyan: #f15bb5;
-  --neon-cyan-dim: rgba(241, 91, 181, 0.18);
-  --neon-green-glow: rgba(241, 91, 181, 0.7);
+  --neon-cyan-dim: rgba(241, 91, 181, 0.22);
+  --neon-green-glow: rgba(241, 91, 181, 0.75);
+  --neon-glow-strong: 0 0 20px rgba(241, 91, 181, 0.6), 0 0 40px rgba(155, 93, 229, 0.3);
   --bg-darker: #140410;
-  --bg-panel: rgba(33, 8, 27, 0.78);
-  --bg-body: radial-gradient(circle at 50% -20%, #47083a 0%, #140410 85%);
+  --bg-panel: rgba(33, 8, 27, 0.65);
+  --border-subtle: rgba(241, 91, 181, 0.2);
+  --bg-body: radial-gradient(circle at 50% -20%, #5e0b4d 0%, #2e0526 50%, #140410 100%);
 }
 
 /* Enhanced Stat Cards with Futuristic Accent Bar */
