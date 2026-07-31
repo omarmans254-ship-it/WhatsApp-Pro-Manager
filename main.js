@@ -16,6 +16,9 @@ app.commandLine.appendSwitch('js-flags', '--max-old-space-size=256');
 
 let mainWindow;
 
+const dataDir = app.getPath('userData');
+const accountsFile = path.join(dataDir, 'accounts.json');
+
 // Find Chrome Path
 const chromePaths = [
     'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
