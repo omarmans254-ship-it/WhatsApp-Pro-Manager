@@ -1158,16 +1158,16 @@ body {
 /* 🎨 12 PURE COLOR THEMES DEFINITIONS */
 /* ========================================== */
 
-/* 1. موف (Royal Mauve - Default) */
+/* 1. موف (Royal Mauve Velvet Silk - Default) */
 [data-theme="night"], :root {
   --neon-cyan: #c77dff;
-  --neon-cyan-dim: rgba(199, 125, 255, 0.22);
-  --neon-green-glow: rgba(199, 125, 255, 0.75);
-  --neon-glow-strong: 0 0 20px rgba(199, 125, 255, 0.6), 0 0 40px rgba(157, 78, 221, 0.3);
-  --bg-darker: #0d0714;
-  --bg-panel: rgba(22, 13, 36, 0.65);
-  --border-subtle: rgba(199, 125, 255, 0.2);
-  --bg-body: radial-gradient(circle at 50% -20%, #3a0ca3 0%, #17082c 50%, #0d0714 100%);
+  --neon-cyan-dim: rgba(199, 125, 255, 0.28);
+  --neon-green-glow: rgba(157, 78, 221, 0.85);
+  --neon-glow-strong: 0 0 25px rgba(181, 23, 158, 0.75), 0 0 50px rgba(123, 44, 191, 0.5);
+  --bg-darker: #10002b;
+  --bg-panel: rgba(36, 0, 70, 0.72);
+  --border-subtle: rgba(199, 125, 255, 0.32);
+  --bg-body: radial-gradient(circle at 50% -20%, #7b2cbf 0%, #3c096c 45%, #240046 75%, #10002b 100%);
 }
 
 /* 2. ذهبي (Gold Luxury) */
