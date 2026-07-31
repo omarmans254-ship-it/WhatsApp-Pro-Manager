@@ -463,53 +463,6 @@ function applyLanguage(lang) {
     setTimeout(() => newAccountNameInput.focus(), 100);
   }
 
-  function closeModal() {
-    modal.classList.remove('active');
-  }
-
-  openModalBtn.addEventListener('click', openModal);
-  closeModalBtn.addEventListener('click', closeModal);
-  cancelModalBtn.addEventListener('click', closeModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  // Handle Add Account
-  async function addAccount() {
-    const name = newAccountNameInput.value.trim();
-    const phone = newAccountNumberInput.value.trim();
-    
-    if (!name) {
-      showToast(i18n[currentLang].toast_fill_fields, 'error');
-      return;
-    }
-
-    const phoneRegex = /^[+0-9\s-]{8,20}$/;
-    if (!phone || !phoneRegex.test(phone)) {
-      showToast(i18n[currentLang].toast_invalid_phone, 'error');
-      return;
-    }
-
-    const id = 'acc_' + Date.now();
-    accounts.push({ id, name, phone });
-    await saveAccounts();
-    renderAccounts();
-    updateDashboardStats();
-    closeModal();
-    addLog('النظام', `تم إضافة الحساب الجديد: ${name}`, 'success');
-    showToast(`تم حفظ حساب ${name} بنجاح!`, 'success');
-  }
-
-  submitAccountBtn.addEventListener('click', addAccount);
-  const handleEnter = (e) => { if (e.key === 'Enter') addAccount(); };
-  newAccountNameInput.addEventListener('keypress', handleEnter);
-  newAccountNumberInput.addEventListener('keypress', handleEnter);
-
-  async function saveAccounts() {
-    await window.electronAPI.saveAccounts(accounts);
-  }
-
   // --- Handle Checkboxes & Multi-start ---
   selectAllCb.addEventListener('change', (e) => {
     const checkboxes = document.querySelectorAll('.account-checkbox');
