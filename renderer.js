@@ -272,7 +272,7 @@ function applyLanguage(lang) {
               if (res.hasUpdate) {
                   showToast(currentLang === 'ar' ? `🚀 يتوفر تحديث جديد v${res.latestVersion} على GitHub!` : `🚀 New update v${res.latestVersion} available on GitHub!`, 'success');
                   if (res.downloadUrl) {
-                      window.open(res.downloadUrl, '_blank');
+                      window.electronAPI.openExternal(res.downloadUrl);
                   }
               } else {
                   showToast(currentLang === 'ar' ? `أنت تستخدم أحدث إصدار v${res.currentVersion || '1.0.0'}` : `You are using the latest version v${res.currentVersion || '1.0.0'}`, 'success');

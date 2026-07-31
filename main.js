@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Notification, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { spawn, exec } = require('child_process');
@@ -463,9 +463,9 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
                             downloadUrl: downloadUrl,
                             releaseUrl: release.html_url
                         });
-                    } else {
-                        resolve({ hasUpdate: false, error: `GitHub API status ${res.statusCode}` });
+                        return;
                     }
+                    resolve({ hasUpdate: false, error: `GitHub API status ${res.statusCode}` });
                 } catch(e) {
                     resolve({ hasUpdate: false, error: e.message });
                 }
@@ -478,6 +478,14 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
 
 ipcMain.handle('check-github-update', async (event, owner, repo) => {
     return await checkGitHubReleases(owner || 'omarmans254-ship-it', repo || 'WhatsApp-Pro-Manager');
+});
+
+ipcMain.handle('open-external', async (event, url) => {
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+        shell.openExternal(url);
+        return true;
+    }
+    return false;
 });
 
 // --- Backup & Restore ---

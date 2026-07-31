@@ -21,7 +21,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getConnectedClients: () => ipcRenderer.invoke('get-connected-clients'),
   autoDiscoverServer: () => ipcRenderer.invoke('auto-discover-server'),
   testConnection: (targetIp) => ipcRenderer.invoke('test-connection', targetIp),
-  checkGitHubUpdate: (owner, repo) => ipcRenderer.invoke('check-github-update', owner, repo)
+  checkGitHubUpdate: (owner, repo) => ipcRenderer.invoke('check-github-update', owner, repo),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url)
 });
 
 
