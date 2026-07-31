@@ -351,6 +351,13 @@ function createWindow() {
   });
 
   mainWindow.loadFile('index.html');
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
+  });
 }
 
 app.whenReady().then(() => {
@@ -486,6 +493,48 @@ ipcMain.handle('open-external', async (event, url) => {
         return true;
     }
     return false;
+});
+
+function downloadFile(url, dest) {
+    return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(dest);
+        const request = (targetUrl) => {
+            const client = targetUrl.startsWith('https') ? https : http;
+            client.get(targetUrl, { headers: { 'User-Agent': 'WhatsApp-Pro-Manager-App' } }, (response) => {
+                if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                    return request(response.headers.location);
+                }
+                if (response.statusCode !== 200) {
+                    return reject(new Error(`Download failed with status ${response.statusCode}`));
+                }
+                response.pipe(file);
+                file.on('finish', () => {
+                    file.close(() => resolve(dest));
+                });
+            }).on('error', (err) => {
+                fs.unlink(dest, () => reject(err));
+            });
+        };
+        request(url);
+    });
+}
+
+ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
+    try {
+        if (!downloadUrl) return { success: false, error: 'No download URL' };
+        const tempPath = path.join(app.getPath('temp'), `WhatsApp_Setup_${Date.now()}.exe`);
+        await downloadFile(downloadUrl, tempPath);
+        
+        spawn(tempPath, [], { detached: true, stdio: 'ignore' }).unref();
+        
+        setTimeout(() => {
+            app.quit();
+        }, 1500);
+        
+        return { success: true, path: tempPath };
+    } catch(e) {
+        return { success: false, error: e.message };
+    }
 });
 
 // --- Backup & Restore ---

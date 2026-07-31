@@ -22,7 +22,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   autoDiscoverServer: () => ipcRenderer.invoke('auto-discover-server'),
   testConnection: (targetIp) => ipcRenderer.invoke('test-connection', targetIp),
   checkGitHubUpdate: (owner, repo) => ipcRenderer.invoke('check-github-update', owner, repo),
-  openExternal: (url) => ipcRenderer.invoke('open-external', url)
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  downloadAndInstallUpdate: (url) => ipcRenderer.invoke('download-and-install-update', url)
 });
 
 

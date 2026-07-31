@@ -270,9 +270,12 @@ function applyLanguage(lang) {
           try {
               const res = await window.electronAPI.checkGitHubUpdate();
               if (res.hasUpdate) {
-                  showToast(currentLang === 'ar' ? `🚀 يتوفر تحديث جديد v${res.latestVersion} على GitHub!` : `🚀 New update v${res.latestVersion} available on GitHub!`, 'success');
+                  showToast(currentLang === 'ar' ? `🚀 يتوفر تحديث v${res.latestVersion}! جاري التنزيل والتثبيت...` : `🚀 New update v${res.latestVersion} found! Downloading...`, 'success');
                   if (res.downloadUrl) {
-                      window.electronAPI.openExternal(res.downloadUrl);
+                      const dlRes = await window.electronAPI.downloadAndInstallUpdate(res.downloadUrl);
+                      if (!dlRes.success) {
+                          window.electronAPI.openExternal(res.downloadUrl);
+                      }
                   }
               } else {
                   showToast(currentLang === 'ar' ? `أنت تستخدم أحدث إصدار v${res.currentVersion || '1.0.0'}` : `You are using the latest version v${res.currentVersion || '1.0.0'}`, 'success');
