@@ -18,6 +18,7 @@ let mainWindow;
 
 const dataDir = app.getPath('userData');
 const accountsFile = path.join(dataDir, 'accounts.json');
+const accountsBackupFile = path.join(dataDir, 'accounts_auto_backup.json');
 
 // Find Chrome Path
 const chromePaths = [
@@ -423,24 +424,44 @@ ipcMain.handle('get-accounts', async () => {
     
     if (fs.existsSync(accountsFile)) {
         try {
-            return JSON.parse(fs.readFileSync(accountsFile, 'utf8'));
+            const accs = JSON.parse(fs.readFileSync(accountsFile, 'utf8'));
+            if (Array.isArray(accs) && accs.length > 0) {
+                try { fs.writeFileSync(accountsBackupFile, JSON.stringify(accs, null, 2), 'utf8'); } catch(e){}
+                return accs;
+            }
         } catch (e) {}
     }
+
+    // Auto Recovery Fallback
+    if (fs.existsSync(accountsBackupFile)) {
+        try {
+            const backupAccs = JSON.parse(fs.readFileSync(accountsBackupFile, 'utf8'));
+            if (Array.isArray(backupAccs) && backupAccs.length > 0) {
+                try { fs.writeFileSync(accountsFile, JSON.stringify(backupAccs, null, 2), 'utf8'); } catch(e){}
+                return backupAccs;
+            }
+        } catch (e) {}
+    }
+
     return [];
 });
 
 ipcMain.handle('save-accounts', async (event, accounts) => {
+    try {
+        const jsonStr = JSON.stringify(accounts, null, 2);
+        fs.writeFileSync(accountsFile, jsonStr, 'utf8');
+        fs.writeFileSync(accountsBackupFile, jsonStr, 'utf8');
+    } catch (e) {}
+
     if (syncMode === 'CLIENT' && syncTargetIp) {
         try {
             await makeHttpRequest('POST', '/accounts', accounts, syncTargetIp);
-            fs.writeFileSync(accountsFile, JSON.stringify(accounts, null, 2), 'utf8');
             return true;
         } catch (e) {
             return false;
         }
     }
 
-    fs.writeFileSync(accountsFile, JSON.stringify(accounts, null, 2), 'utf8');
     return true;
 });
 

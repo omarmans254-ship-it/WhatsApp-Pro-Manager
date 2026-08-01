@@ -319,6 +319,11 @@ function applyLanguage(lang) {
       }
   });
 
+  function normalizePhone(phoneStr) {
+      if (!phoneStr) return '';
+      return String(phoneStr).replace(/[^\d]/g, '').replace(/^00/, '');
+  }
+
   if (submitAccountBtn) {
       submitAccountBtn.addEventListener('click', async () => {
           let name = newAccountNameInput.value.trim();
@@ -328,6 +333,25 @@ function applyLanguage(lang) {
           if (!name) name = phone;
           
           if (!name && !phone) return showToast(i18n[currentLang].toast_fill_fields, 'error');
+
+          // Duplicate Prevention Check
+          const cleanPhone = normalizePhone(phone || name);
+          if (cleanPhone && accounts && accounts.length > 0) {
+              const existing = accounts.find(acc => {
+                  const p1 = normalizePhone(acc.phone);
+                  const p2 = normalizePhone(acc.name);
+                  return p1 === cleanPhone || p2 === cleanPhone;
+              });
+              if (existing) {
+                  const msg = currentLang === 'ar' 
+                      ? `عفواً، هذا الرقم مضاف بالفعل باسم "${existing.name}"!` 
+                      : `Sorry, this phone number is already added under "${existing.name}"!`;
+                  showToast(msg, 'error');
+                  addLog(i18n[currentLang].log_sys, `تنبيه: الرقم (${phone || name}) مضاف مسبقاً باسم "${existing.name}"`, 'error');
+                  if (newAccountNumberInput) newAccountNumberInput.focus();
+                  return;
+              }
+          }
 
           const newAccount = {
               id: 'acc_' + Date.now(),
