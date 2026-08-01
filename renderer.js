@@ -613,17 +613,7 @@ function applyLanguage(lang) {
       return `linear-gradient(135deg, hsl(${h1}, 80%, 42%), hsl(${h2}, 85%, 32%))`;
   }
 
-  const collapseSidebarBtn = document.getElementById('collapse-sidebar-btn');
-  const sidebarEl = document.querySelector('.sidebar');
-  if (collapseSidebarBtn && sidebarEl) {
-      if (localStorage.getItem('wa_sidebar_collapsed') === 'true') {
-          sidebarEl.classList.add('collapsed');
-      }
-      collapseSidebarBtn.addEventListener('click', () => {
-          sidebarEl.classList.toggle('collapsed');
-          localStorage.setItem('wa_sidebar_collapsed', sidebarEl.classList.contains('collapsed'));
-      });
-  }
+  localStorage.removeItem('wa_sidebar_collapsed');
 
   function renderAccounts() {
     accountsList.innerHTML = '';

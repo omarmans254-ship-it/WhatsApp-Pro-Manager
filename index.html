@@ -47,12 +47,7 @@
     <!-- Sidebar -->
     <div class="sidebar neon-panel">
       <div class="sidebar-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="collapse-sidebar-btn" class="icon-btn neon-btn-icon" title="طي/توسيع القائمة">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-          </button>
-          <h2 class="neon-text sidebar-title" data-i18n="my_accounts">حساباتي</h2>
-        </div>
+        <h2 class="neon-text" data-i18n="my_accounts">حساباتي</h2>
         <button id="open-modal-btn" class="icon-btn neon-btn-icon" title="إضافة حساب جديد" data-i18n-title="add_account_btn">
           <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
@@ -95,7 +90,7 @@
           <div>
             <div style="display: flex; align-items: center; gap: 10px;">
               <h1 class="neon-text" data-i18n="dashboard_title">لوحة التحكم (Dashboard)</h1>
-              <span id="app-version-badge" class="uptime-badge" style="font-size: 0.8rem; border-color: var(--neon-cyan); color: var(--neon-cyan);">v2.0.7</span>
+              <span id="app-version-badge" class="uptime-badge" style="font-size: 0.8rem; border-color: var(--neon-cyan); color: var(--neon-cyan);">v2.0.8</span>
             </div>
             <p style="color: var(--text-muted); margin-top: 5px;" data-i18n="dashboard_subtitle">يتم الآن تشغيل الحسابات في متصفحات خارجية لضمان أفضل أداء.</p>
           </div>
@@ -166,7 +161,7 @@
 
   <!-- Add Account Modal -->
   <div class="modal-overlay" id="add-modal">
-    <div class="modal-content neon-panel">
+    <div class="modal-content">
       <div class="modal-header">
         <h3 class="neon-text" data-i18n="add_modal_title">إضافة حساب جديد</h3>
         <button class="close-btn" id="close-modal-btn">&times;</button>
