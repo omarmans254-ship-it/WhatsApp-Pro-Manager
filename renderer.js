@@ -592,6 +592,39 @@ function applyLanguage(lang) {
     });
   }
 
+  function getAvatarText(name, phone) {
+      if (name && !/^[\+\d\s\-\(\)]+$/.test(name.trim())) {
+          return name.trim().charAt(0).toUpperCase();
+      }
+      const digits = String(phone || name || '').replace(/[^\d]/g, '');
+      if (digits.length >= 2) return digits.slice(-2);
+      if (digits.length === 1) return digits;
+      return '#';
+  }
+
+  function getAvatarGradient(str) {
+      let hash = 0;
+      const s = String(str || 'acc');
+      for (let i = 0; i < s.length; i++) {
+          hash = s.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const h1 = Math.abs(hash) % 360;
+      const h2 = (h1 + 45) % 360;
+      return `linear-gradient(135deg, hsl(${h1}, 80%, 42%), hsl(${h2}, 85%, 32%))`;
+  }
+
+  const collapseSidebarBtn = document.getElementById('collapse-sidebar-btn');
+  const sidebarEl = document.querySelector('.sidebar');
+  if (collapseSidebarBtn && sidebarEl) {
+      if (localStorage.getItem('wa_sidebar_collapsed') === 'true') {
+          sidebarEl.classList.add('collapsed');
+      }
+      collapseSidebarBtn.addEventListener('click', () => {
+          sidebarEl.classList.toggle('collapsed');
+          localStorage.setItem('wa_sidebar_collapsed', sidebarEl.classList.contains('collapsed'));
+      });
+  }
+
   function renderAccounts() {
     accountsList.innerHTML = '';
     
@@ -625,7 +658,13 @@ function applyLanguage(lang) {
         <span class="neon-checkbox"></span>
       `;
 
-      // Status Dot
+      // Smart Avatar Circle
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'account-avatar';
+      avatarDiv.style.background = getAvatarGradient(acc.id + acc.name + acc.phone);
+      avatarDiv.textContent = getAvatarText(acc.name, acc.phone);
+
+      // Status Dot / Indicator
       const statusDot = document.createElement('div');
       statusDot.id = `status_${acc.id}`;
       statusDot.className = 'status-dot' + (isRunning ? ' status-running' : '');
@@ -654,23 +693,31 @@ function applyLanguage(lang) {
         detailsDiv.appendChild(phoneDiv);
       }
 
-      if (isRunning) {
-        const metaDiv = document.createElement('div');
-        metaDiv.style.marginTop = '4px';
+      const metaDiv = document.createElement('div');
+      metaDiv.style.marginTop = '4px';
+      metaDiv.style.display = 'flex';
+      metaDiv.style.alignItems = 'center';
+      metaDiv.style.gap = '6px';
 
+      if (isRunning) {
         const uptimeBadge = document.createElement('span');
         uptimeBadge.className = 'uptime-badge';
         uptimeBadge.setAttribute('data-starttime', statusObj.startTime);
         uptimeBadge.textContent = '00:00:00';
         
         const loginBadge = document.createElement('span');
-        loginBadge.className = 'login-badge ' + (statusObj.loggedIn ? 'scanned' : 'waiting');
+        loginBadge.className = 'status-badge-pill ' + (statusObj.loggedIn ? 'scanned' : 'waiting');
         loginBadge.textContent = statusObj.loggedIn ? i18n[currentLang].status_scanned : i18n[currentLang].status_waiting;
         
         metaDiv.appendChild(uptimeBadge);
         metaDiv.appendChild(loginBadge);
-        detailsDiv.appendChild(metaDiv);
+      } else {
+        const offlineBadge = document.createElement('span');
+        offlineBadge.className = 'status-badge-pill offline';
+        offlineBadge.textContent = currentLang === 'ar' ? 'مغلق ⚪' : 'Offline ⚪';
+        metaDiv.appendChild(offlineBadge);
       }
+      detailsDiv.appendChild(metaDiv);
 
       // Account Actions (Launch, Reset, Delete)
       const actionsDiv = document.createElement('div');
@@ -725,6 +772,7 @@ function applyLanguage(lang) {
       actionsDiv.appendChild(deleteBtn);
 
       li.appendChild(checkboxLabel);
+      li.appendChild(avatarDiv);
       li.appendChild(statusDot);
       li.appendChild(detailsDiv);
       li.appendChild(actionsDiv);

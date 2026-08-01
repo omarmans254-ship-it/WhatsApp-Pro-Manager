@@ -254,13 +254,15 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
-  margin-bottom: 12px;
-  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
   border: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   gap: 10px;
@@ -268,13 +270,42 @@ body {
 
 .account-item:hover {
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 15px var(--neon-cyan-dim), inset 0 0 10px var(--neon-cyan-dim);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--neon-cyan-dim);
+  transform: translateY(-2px);
 }
 
 .account-item.active {
   border-color: var(--neon-green);
   background: rgba(0, 255, 136, 0.08);
-  box-shadow: 0 0 15px var(--neon-green-dim), inset 0 0 15px var(--neon-green-dim);
+  box-shadow: 0 0 20px var(--neon-green-dim), inset 0 0 15px var(--neon-green-dim);
+  animation: activeGlowPulse 3s infinite ease-in-out;
+}
+
+@keyframes activeGlowPulse {
+  0%, 100% { box-shadow: 0 0 15px var(--neon-green-dim), inset 0 0 10px var(--neon-green-dim); }
+  50% { box-shadow: 0 0 25px var(--neon-green-glow), inset 0 0 18px var(--neon-green-dim); }
+}
+
+/* Smart Avatar Circle */
+.account-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.account-item:hover .account-avatar {
+  transform: scale(1.08);
 }
 
 /* Status Dot */
@@ -290,6 +321,62 @@ body {
 .status-running {
   background-color: var(--neon-green);
   box-shadow: 0 0 8px var(--neon-green-glow);
+}
+
+/* Live Status Badge Pills */
+.status-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid transparent;
+}
+
+.status-badge-pill.scanned {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.12);
+  border-color: rgba(0, 255, 136, 0.35);
+}
+
+.status-badge-pill.waiting {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  border-color: rgba(255, 215, 0, 0.35);
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.status-badge-pill.offline {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-subtle);
+}
+
+/* Collapsed Sidebar */
+.sidebar.collapsed {
+  width: 72px;
+  min-width: 72px;
+}
+
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed .search-box,
+.sidebar.collapsed .multi-action-bar span,
+.sidebar.collapsed .multi-action-bar button span,
+.sidebar.collapsed .account-details {
+  display: none !important;
+}
+
+.sidebar.collapsed .multi-action-bar {
+  justify-content: center;
+  padding: 8px 4px;
+}
+
+.sidebar.collapsed .account-item {
+  justify-content: center;
+  padding: 8px;
 }
 
 .account-details {
