@@ -592,29 +592,6 @@ function applyLanguage(lang) {
     });
   }
 
-  function getAvatarText(name, phone) {
-      if (name && !/^[\+\d\s\-\(\)]+$/.test(name.trim())) {
-          return name.trim().charAt(0).toUpperCase();
-      }
-      const digits = String(phone || name || '').replace(/[^\d]/g, '');
-      if (digits.length >= 2) return digits.slice(-2);
-      if (digits.length === 1) return digits;
-      return '#';
-  }
-
-  function getAvatarGradient(str) {
-      let hash = 0;
-      const s = String(str || 'acc');
-      for (let i = 0; i < s.length; i++) {
-          hash = s.charCodeAt(i) + ((hash << 5) - hash);
-      }
-      const h1 = Math.abs(hash) % 360;
-      const h2 = (h1 + 45) % 360;
-      return `linear-gradient(135deg, hsl(${h1}, 80%, 42%), hsl(${h2}, 85%, 32%))`;
-  }
-
-  localStorage.removeItem('wa_sidebar_collapsed');
-
   function renderAccounts() {
     accountsList.innerHTML = '';
     
@@ -647,12 +624,6 @@ function applyLanguage(lang) {
         <input type="checkbox" class="account-checkbox" data-id="${acc.id}">
         <span class="neon-checkbox"></span>
       `;
-
-      // Smart Avatar Circle
-      const avatarDiv = document.createElement('div');
-      avatarDiv.className = 'account-avatar';
-      avatarDiv.style.background = getAvatarGradient(acc.id + acc.name + acc.phone);
-      avatarDiv.textContent = getAvatarText(acc.name, acc.phone);
 
       // Status Dot / Indicator
       const statusDot = document.createElement('div');
@@ -762,7 +733,6 @@ function applyLanguage(lang) {
       actionsDiv.appendChild(deleteBtn);
 
       li.appendChild(checkboxLabel);
-      li.appendChild(avatarDiv);
       li.appendChild(statusDot);
       li.appendChild(detailsDiv);
       li.appendChild(actionsDiv);
