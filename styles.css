@@ -213,6 +213,18 @@ body {
   box-shadow: 0 0 15px var(--neon-cyan-dim);
 }
 
+.neon-btn-small.btn-danger-small {
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+  box-shadow: 0 0 8px rgba(255, 77, 77, 0.2);
+}
+
+.neon-btn-small.btn-danger-small:hover {
+  background: #ff4d4d;
+  color: #000;
+  box-shadow: 0 0 15px rgba(255, 77, 77, 0.6);
+}
+
 /* Accounts List */
 #accounts-list {
   list-style: none;

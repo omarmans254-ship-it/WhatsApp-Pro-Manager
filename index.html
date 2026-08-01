@@ -63,10 +63,16 @@
           <span class="neon-checkbox"></span>
           <span style="margin-right: 8px; font-size: 0.85rem; color: var(--text-muted);" data-i18n="select_all">تحديد الكل</span>
         </label>
-        <button id="start-selected-btn" class="neon-btn-small" title="تشغيل الحسابات المحددة عبر متصفح كروم">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          <span data-i18n="start_chrome">تشغيل كروم</span>
-        </button>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button id="start-selected-btn" class="neon-btn-small" title="تشغيل الحسابات المحددة عبر متصفح كروم">
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span data-i18n="start_chrome">تشغيل</span>
+          </button>
+          <button id="clear-all-btn" class="neon-btn-small btn-danger-small" title="مسح جميع الأرقام من القائمة" data-i18n-title="clear_all_title">
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span data-i18n="clear_all_numbers">مسح الكل</span>
+          </button>
+        </div>
       </div>
 
       <ul id="accounts-list">
@@ -84,7 +90,7 @@
           <div>
             <div style="display: flex; align-items: center; gap: 10px;">
               <h1 class="neon-text" data-i18n="dashboard_title">لوحة التحكم (Dashboard)</h1>
-              <span id="app-version-badge" class="uptime-badge" style="font-size: 0.8rem; border-color: var(--neon-cyan); color: var(--neon-cyan);">v2.0.3</span>
+              <span id="app-version-badge" class="uptime-badge" style="font-size: 0.8rem; border-color: var(--neon-cyan); color: var(--neon-cyan);">v2.0.5</span>
             </div>
             <p style="color: var(--text-muted); margin-top: 5px;" data-i18n="dashboard_subtitle">يتم الآن تشغيل الحسابات في متصفحات خارجية لضمان أفضل أداء.</p>
           </div>
