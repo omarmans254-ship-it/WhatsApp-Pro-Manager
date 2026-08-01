@@ -614,32 +614,39 @@ function applyLanguage(lang) {
       const nameDiv = document.createElement('div');
       nameDiv.className = 'account-name';
       nameDiv.textContent = acc.name;
-
-      const phoneDiv = document.createElement('div');
-      phoneDiv.className = 'account-phone';
-      phoneDiv.textContent = acc.phone;
-      phoneDiv.dir = 'ltr';
-
-      const metaDiv = document.createElement('div');
-      metaDiv.style.marginTop = '4px';
-      
-      if (isRunning) {
-          const uptimeBadge = document.createElement('span');
-          uptimeBadge.className = 'uptime-badge';
-          uptimeBadge.setAttribute('data-starttime', statusObj.startTime);
-          uptimeBadge.textContent = '00:00:00';
-          
-          const loginBadge = document.createElement('span');
-          loginBadge.className = 'login-badge ' + (statusObj.loggedIn ? 'scanned' : 'waiting');
-          loginBadge.textContent = statusObj.loggedIn ? i18n[currentLang].status_scanned : i18n[currentLang].status_waiting;
-          
-          metaDiv.appendChild(uptimeBadge);
-          metaDiv.appendChild(loginBadge);
+      if (/^[\+\d\s\-\(\)]+$/.test(acc.name)) {
+        nameDiv.dir = 'ltr';
+        nameDiv.style.fontFamily = "'Inter', monospace";
+        nameDiv.style.letterSpacing = '0.5px';
       }
 
       detailsDiv.appendChild(nameDiv);
-      detailsDiv.appendChild(phoneDiv);
-      if (isRunning) detailsDiv.appendChild(metaDiv);
+
+      if (acc.phone && acc.phone !== acc.name) {
+        const phoneDiv = document.createElement('div');
+        phoneDiv.className = 'account-phone';
+        phoneDiv.textContent = acc.phone;
+        phoneDiv.dir = 'ltr';
+        detailsDiv.appendChild(phoneDiv);
+      }
+
+      if (isRunning) {
+        const metaDiv = document.createElement('div');
+        metaDiv.style.marginTop = '4px';
+
+        const uptimeBadge = document.createElement('span');
+        uptimeBadge.className = 'uptime-badge';
+        uptimeBadge.setAttribute('data-starttime', statusObj.startTime);
+        uptimeBadge.textContent = '00:00:00';
+        
+        const loginBadge = document.createElement('span');
+        loginBadge.className = 'login-badge ' + (statusObj.loggedIn ? 'scanned' : 'waiting');
+        loginBadge.textContent = statusObj.loggedIn ? i18n[currentLang].status_scanned : i18n[currentLang].status_waiting;
+        
+        metaDiv.appendChild(uptimeBadge);
+        metaDiv.appendChild(loginBadge);
+        detailsDiv.appendChild(metaDiv);
+      }
 
       // Account Actions (Launch, Reset, Delete)
       const actionsDiv = document.createElement('div');

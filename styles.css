@@ -73,7 +73,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-  width: 280px;
+  width: 340px;
   display: flex;
   flex-direction: column;
   z-index: 10;
@@ -294,18 +294,20 @@ body {
 
 .account-details {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .account-name {
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .account-item.active .account-name {
@@ -314,10 +316,14 @@ body {
 }
 
 .account-phone {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   color: var(--text-muted);
-  font-family: monospace;
-  opacity: 0.7;
+  font-family: 'Inter', monospace;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
 }
 
