@@ -367,12 +367,24 @@ body {
   font-size: 0.92rem;
   color: var(--text-muted);
   font-family: 'Inter', monospace;
-  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: 0.5px;
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
   transition: all 0.3s ease;
+}
+
+.account-name.phone-format {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-family: 'Inter', monospace;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
 }
 
 .account-item.active .account-phone {
@@ -481,24 +493,33 @@ body {
 
 .stat-card {
   flex: 1;
-  padding: 25px;
-  border-radius: 12px;
+  padding: 22px 24px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  border-top: 3px solid var(--neon-cyan);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
 }
 
 .stat-card h3 {
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
 }
 
 .stat-value {
-  font-size: 2.5rem;
+  font-size: 2.4rem;
   font-weight: 700;
-  color: var(--text-main);
+  line-height: 1.2;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 12px var(--neon-cyan-dim);
   font-family: 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
 }
 
 .dashboard-logs {
@@ -721,14 +742,15 @@ body {
 
 .pin-display {
   display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 14px;
+  margin-bottom: 25px;
   justify-content: center;
+  align-items: center;
 }
 
 .pin-dot {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--bg-darker);
   border: 2px solid var(--border-subtle);
@@ -750,24 +772,26 @@ body {
 .numpad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 12px;
   width: 100%;
 }
 
 .num-btn {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   border: 1px solid var(--border-subtle);
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
   font-family: 'Inter', sans-serif;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
   margin: 0 auto;
 }
 
@@ -820,6 +844,76 @@ body {
 
 .shake {
   animation: shake 0.3s ease-in-out;
+}
+
+/* Toast Notifications System */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.neon-toast {
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: var(--bg-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--neon-cyan-dim);
+  animation: slideInToast 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.neon-toast.success {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--neon-green-dim);
+}
+
+.neon-toast.error {
+  border-color: var(--neon-danger);
+  color: var(--neon-danger);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--neon-danger-glow);
+}
+
+.neon-toast.info {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--neon-cyan-dim);
+}
+
+@keyframes slideInToast {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
 }
 
 /* --- Royal Silk Glassmorphism Theme Engine 2.0 --- */

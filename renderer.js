@@ -639,9 +639,12 @@ function applyLanguage(lang) {
       nameDiv.className = 'account-name';
       nameDiv.textContent = acc.name;
       if (/^[\+\d\s\-\(\)]+$/.test(acc.name)) {
+        nameDiv.classList.add('phone-format');
         nameDiv.dir = 'ltr';
+        nameDiv.style.unicodeBidi = 'isolate';
         nameDiv.style.fontFamily = "'Inter', monospace";
         nameDiv.style.letterSpacing = '0.5px';
+        nameDiv.style.fontVariantNumeric = 'tabular-nums';
       }
 
       detailsDiv.appendChild(nameDiv);
@@ -651,6 +654,8 @@ function applyLanguage(lang) {
         phoneDiv.className = 'account-phone';
         phoneDiv.textContent = acc.phone;
         phoneDiv.dir = 'ltr';
+        phoneDiv.style.unicodeBidi = 'isolate';
+        phoneDiv.style.fontVariantNumeric = 'tabular-nums';
         detailsDiv.appendChild(phoneDiv);
       }
 
@@ -663,6 +668,9 @@ function applyLanguage(lang) {
       if (isRunning) {
         const uptimeBadge = document.createElement('span');
         uptimeBadge.className = 'uptime-badge';
+        uptimeBadge.style.fontVariantNumeric = 'tabular-nums';
+        uptimeBadge.style.direction = 'ltr';
+        uptimeBadge.style.unicodeBidi = 'isolate';
         uptimeBadge.setAttribute('data-starttime', statusObj.startTime);
         uptimeBadge.textContent = '00:00:00';
         

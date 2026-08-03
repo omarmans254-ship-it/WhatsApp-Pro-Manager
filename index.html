@@ -90,7 +90,7 @@
           <div>
             <div style="display: flex; align-items: center; gap: 10px;">
               <h1 class="neon-text" data-i18n="dashboard_title">لوحة التحكم (Dashboard)</h1>
-              <span id="app-version-badge" class="uptime-badge" style="font-size: 0.8rem; border-color: var(--neon-cyan); color: var(--neon-cyan);">v2.0.9</span>
+              <span id="app-version-badge" class="uptime-badge" style="font-size: 0.8rem; border-color: var(--neon-cyan); color: var(--neon-cyan);">v2.1.0</span>
             </div>
             <p style="color: var(--text-muted); margin-top: 5px;" data-i18n="dashboard_subtitle">يتم الآن تشغيل الحسابات في متصفحات خارجية لضمان أفضل أداء.</p>
           </div>
@@ -134,7 +134,7 @@
       <div class="dashboard-stats">
         <div class="stat-card neon-panel">
           <h3 data-i18n="total_accounts">إجمالي الحسابات</h3>
-          <div class="stat-value" id="total-accounts-count">0</div>
+          <div class="stat-value neon-text" id="total-accounts-count">0</div>
         </div>
         <div class="stat-card neon-panel">
           <h3 data-i18n="active_accounts">الحسابات النشطة الآن</h3>
@@ -167,8 +167,8 @@
         <button class="close-btn" id="close-modal-btn">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="input-group" style="display: none;">
-          <label for="new-account-name" data-i18n="account_name_label">اسم الحساب</label>
+        <div class="input-group">
+          <label for="new-account-name" data-i18n="account_name_label">اسم الحساب (اختياري)</label>
           <input type="text" id="new-account-name" class="neon-input" placeholder="مثال: حساب العمل، خدمة العملاء..." data-i18n-placeholder="account_name_placeholder">
         </div>
         <div class="input-group">

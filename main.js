@@ -261,6 +261,38 @@ ipcMain.handle('get-connected-clients', () => {
     return { count: activeIps.length, clients: activeIps };
 });
 
+// --- Security Vault PIN Handlers ---
+const pinFile = path.join(dataDir, 'security_pin.json');
+
+ipcMain.handle('check-security', () => {
+    if (!fs.existsSync(pinFile)) return { hasPin: false };
+    try {
+        const data = JSON.parse(fs.readFileSync(pinFile, 'utf8'));
+        return { hasPin: !!data.pin };
+    } catch(e) {
+        return { hasPin: false };
+    }
+});
+
+ipcMain.handle('set-pin', (event, pin) => {
+    try {
+        fs.writeFileSync(pinFile, JSON.stringify({ pin }), 'utf8');
+        return true;
+    } catch(e) {
+        return false;
+    }
+});
+
+ipcMain.handle('verify-pin', (event, pin) => {
+    if (!fs.existsSync(pinFile)) return true;
+    try {
+        const data = JSON.parse(fs.readFileSync(pinFile, 'utf8'));
+        return data.pin === pin;
+    } catch(e) {
+        return false;
+    }
+});
+
 ipcMain.handle('auto-discover-server', async () => {
     return new Promise((resolve) => {
         let client = null;
