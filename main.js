@@ -87,7 +87,16 @@ trackerServer.listen(0, () => {
 });
 
 // --- LAN Sync & Auto-Update System ---
-const APP_VERSION = app.getVersion() || '1.0.0';
+function getAppVersion() {
+    try {
+        const pkgPath = path.join(__dirname, 'package.json');
+        if (fs.existsSync(pkgPath)) {
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+            if (pkg.version) return pkg.version;
+        }
+    } catch(e){}
+    return app.getVersion() || '1.0.0';
+}
 let syncMode = 'LOCAL'; // 'LOCAL', 'SERVER', 'CLIENT'
 let syncTargetIp = '';
 const SYNC_PORT = 9998;
@@ -515,6 +524,7 @@ ipcMain.handle('save-accounts', async (event, accounts) => {
 
 // --- GitHub Releases Auto-Update Engine ---
 function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro-Manager') {
+    const currentVer = getAppVersion();
     return new Promise((resolve) => {
         const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
         const req = https.get(url, {
@@ -528,7 +538,7 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
                     if (res.statusCode === 200) {
                         const release = JSON.parse(data);
                         const latestTag = release.tag_name ? release.tag_name.replace(/^v/, '') : '';
-                        if (latestTag && isVersionHigher(latestTag, APP_VERSION)) {
+                        if (latestTag && isVersionHigher(latestTag, currentVer)) {
                             let downloadUrl = release.html_url || '';
                             if (release.assets && Array.isArray(release.assets) && release.assets.length > 0) {
                                 const exeAsset = release.assets.find(a => a.name.endsWith('.exe'));
@@ -536,7 +546,7 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
                             }
                             return resolve({
                                 hasUpdate: true,
-                                currentVersion: APP_VERSION,
+                                currentVersion: currentVer,
                                 latestVersion: latestTag,
                                 releaseNotes: release.body || '',
                                 downloadUrl: downloadUrl,
@@ -556,10 +566,10 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
                             if (rawRes.statusCode === 200) {
                                 const pkg = JSON.parse(rawData);
                                 const remoteVersion = pkg.version || '';
-                                if (remoteVersion && isVersionHigher(remoteVersion, APP_VERSION)) {
+                                if (remoteVersion && isVersionHigher(remoteVersion, currentVer)) {
                                     return resolve({
                                         hasUpdate: true,
-                                        currentVersion: APP_VERSION,
+                                        currentVersion: currentVer,
                                         latestVersion: remoteVersion,
                                         releaseNotes: 'تحديث جديد متوفر على GitHub',
                                         downloadUrl: `https://github.com/${owner}/${repo}`,
@@ -568,13 +578,13 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
                                 }
                             }
                         } catch(e) {}
-                        resolve({ hasUpdate: false, currentVersion: APP_VERSION });
-                    }).on('error', () => resolve({ hasUpdate: false, currentVersion: APP_VERSION }));
-                }).on('error', () => resolve({ hasUpdate: false, currentVersion: APP_VERSION }));
+                        resolve({ hasUpdate: false, currentVersion: currentVer });
+                    }).on('error', () => resolve({ hasUpdate: false, currentVersion: currentVer }));
+                }).on('error', () => resolve({ hasUpdate: false, currentVersion: currentVer }));
             });
         });
-        req.on('error', (err) => resolve({ hasUpdate: false, error: err.message, currentVersion: APP_VERSION }));
-        req.on('timeout', () => { req.destroy(); resolve({ hasUpdate: false, error: 'Timeout', currentVersion: APP_VERSION }); });
+        req.on('error', (err) => resolve({ hasUpdate: false, error: err.message, currentVersion: currentVer }));
+        req.on('timeout', () => { req.destroy(); resolve({ hasUpdate: false, error: 'Timeout', currentVersion: currentVer }); });
     });
 }
 
@@ -653,11 +663,16 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
         // Clean temp zip
         try { fs.unlinkSync(tempZipPath); } catch(e){}
 
-        // Relaunch Electron app automatically to load new code seamlessly
+        // Reload window immediately to display new code/version instantly
+        if (mainWindow && mainWindow.webContents) {
+            try { mainWindow.webContents.reloadIgnoringCache(); } catch(e){}
+        }
+
+        // Relaunch Electron app automatically to load new main.js cleanly
         setTimeout(() => {
-            app.relaunch();
-            app.quit();
-        }, 1000);
+            try { app.relaunch(); } catch(e){}
+            try { app.quit(); } catch(e){}
+        }, 1500);
 
         return { success: true, mode: 'SILENT_RELAUNCH' };
     } catch(e) {
