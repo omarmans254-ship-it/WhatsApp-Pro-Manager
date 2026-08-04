@@ -166,6 +166,14 @@ function applyLanguage(lang) {
 
   // Initialize App (Runs after unlock)
   async function initApp() {
+      try {
+          const ver = await window.electronAPI.getAppVersion();
+          if (ver) {
+              const badge = document.getElementById('app-version-badge');
+              if (badge) badge.textContent = 'v' + ver;
+          }
+      } catch(e){}
+
       // Migrate or load from secure storage
       accounts = await window.electronAPI.getAccounts();
       
