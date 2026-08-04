@@ -8,6 +8,15 @@ const https = require('https');
 const os = require('os');
 const dgram = require('dgram');
 
+// Apply pending main.js update if available (from previous silent update)
+const pendingMainJs = path.join(__dirname, 'main.js.pending');
+if (fs.existsSync(pendingMainJs)) {
+    try {
+        fs.copyFileSync(pendingMainJs, path.join(__dirname, 'main.js'));
+        fs.unlinkSync(pendingMainJs);
+    } catch(e) { /* ignore */ }
+}
+
 // --- Low Spec & RAM Optimization Switches ---
 app.commandLine.appendSwitch('enable-low-end-device-mode');
 app.commandLine.appendSwitch('renderer-process-limit', '2');
@@ -646,19 +655,35 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
         const zip = new AdmZip(tempZipPath);
         const zipEntries = zip.getEntries();
         const targetDir = __dirname;
+        let updatedCount = 0;
+        let skippedCount = 0;
 
-        zipEntries.forEach((entry) => {
-            if (!entry.isDirectory) {
-                // Strip top folder prefix ("WhatsApp-Pro-Manager-main/")
-                const relativePath = entry.entryName.replace(/^[^/]+\//, '');
-                if (relativePath && !relativePath.startsWith('node_modules') && !relativePath.startsWith('.git')) {
-                    const destPath = path.join(targetDir, relativePath);
-                    const destDir = path.dirname(destPath);
-                    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+        for (const entry of zipEntries) {
+            if (entry.isDirectory) continue;
+
+            // Strip top folder prefix ("WhatsApp-Pro-Manager-main/")
+            const relativePath = entry.entryName.replace(/^[^/]+\//, '');
+            if (!relativePath) continue;
+            if (relativePath.startsWith('node_modules') || relativePath.startsWith('.git')) continue;
+
+            const destPath = path.join(targetDir, relativePath);
+            const destDir2 = path.dirname(destPath);
+
+            try {
+                if (!fs.existsSync(destDir2)) fs.mkdirSync(destDir2, { recursive: true });
+
+                // main.js is locked while app is running - save as pending, apply on next relaunch
+                if (relativePath === 'main.js') {
+                    fs.writeFileSync(path.join(targetDir, 'main.js.pending'), entry.getData());
+                } else {
                     fs.writeFileSync(destPath, entry.getData());
                 }
+                updatedCount++;
+            } catch(writeErr) {
+                // File locked or unwritable - skip silently
+                skippedCount++;
             }
-        });
+        }
 
         // Clean temp zip
         try { fs.unlinkSync(tempZipPath); } catch(e){}
@@ -674,7 +699,7 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
             try { app.quit(); } catch(e){}
         }, 1500);
 
-        return { success: true, mode: 'SILENT_RELAUNCH' };
+        return { success: true, mode: 'SILENT_RELAUNCH', updatedCount, skippedCount };
     } catch(e) {
         return { success: false, error: e.message };
     }
