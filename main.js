@@ -616,17 +616,50 @@ function downloadFile(url, dest) {
 
 ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
     try {
-        if (!downloadUrl) return { success: false, error: 'No download URL' };
-        const tempPath = path.join(app.getPath('temp'), `WhatsApp_Setup_${Date.now()}.exe`);
-        await downloadFile(downloadUrl, tempPath);
-        
-        spawn(tempPath, [], { detached: true, stdio: 'ignore' }).unref();
-        
+        const owner = 'omarmans254-ship-it';
+        const repo = 'WhatsApp-Pro-Manager';
+
+        // 1. If downloadUrl points directly to a compiled setup .exe file
+        if (downloadUrl && downloadUrl.endsWith('.exe')) {
+            const tempExePath = path.join(app.getPath('temp'), `WhatsApp_Setup_${Date.now()}.exe`);
+            await downloadFile(downloadUrl, tempExePath);
+            spawn(tempExePath, [], { detached: true, stdio: 'ignore' }).unref();
+            setTimeout(() => { app.quit(); }, 1500);
+            return { success: true, mode: 'EXE' };
+        }
+
+        // 2. Silent Live Code Auto-Updater from GitHub main.zip
+        const zipUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/main.zip`;
+        const tempZipPath = path.join(app.getPath('temp'), `update_main_${Date.now()}.zip`);
+        await downloadFile(zipUrl, tempZipPath);
+
+        const zip = new AdmZip(tempZipPath);
+        const zipEntries = zip.getEntries();
+        const targetDir = __dirname;
+
+        zipEntries.forEach((entry) => {
+            if (!entry.isDirectory) {
+                // Strip top folder prefix ("WhatsApp-Pro-Manager-main/")
+                const relativePath = entry.entryName.replace(/^[^/]+\//, '');
+                if (relativePath && !relativePath.startsWith('node_modules') && !relativePath.startsWith('.git')) {
+                    const destPath = path.join(targetDir, relativePath);
+                    const destDir = path.dirname(destPath);
+                    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+                    fs.writeFileSync(destPath, entry.getData());
+                }
+            }
+        });
+
+        // Clean temp zip
+        try { fs.unlinkSync(tempZipPath); } catch(e){}
+
+        // Relaunch Electron app automatically to load new code seamlessly
         setTimeout(() => {
+            app.relaunch();
             app.quit();
-        }, 1500);
-        
-        return { success: true, path: tempPath };
+        }, 1000);
+
+        return { success: true, mode: 'SILENT_RELAUNCH' };
     } catch(e) {
         return { success: false, error: e.message };
     }

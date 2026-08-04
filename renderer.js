@@ -267,18 +267,21 @@ function applyLanguage(lang) {
       if (isUpdating) return;
       try {
           const res = await window.electronAPI.checkGitHubUpdate();
-          if (res && res.hasUpdate && res.downloadUrl) {
+          if (res && res.hasUpdate) {
               isUpdating = true;
               showToast(currentLang === 'ar' ? `🚀 يتوفر تحديث جديد v${res.latestVersion}! جاري التنزيل والتثبيت التلقائي...` : `🚀 New update v${res.latestVersion} found! Auto-installing...`, 'success');
-              addLog(i18n[currentLang].log_sys, `تم اكتشاف تحديث v${res.latestVersion}. جاري التثبيت التلقائي...`, 'success');
+              addLog(i18n[currentLang].log_sys, `تم اكتشاف تحديث v${res.latestVersion}. جاري التنزيل والتثبيت التلقائي...`, 'success');
               const dlRes = await window.electronAPI.downloadAndInstallUpdate(res.downloadUrl);
               if (!dlRes.success) {
-                  window.electronAPI.openExternal(res.downloadUrl);
+                  if (res.downloadUrl) window.electronAPI.openExternal(res.downloadUrl);
+                  isUpdating = false;
               }
           } else if (showNoUpdateToast) {
               showToast(currentLang === 'ar' ? `أنت تستخدم أحدث إصدار v${res.currentVersion || '1.0.0'}` : `You are using the latest version v${res.currentVersion || '1.0.0'}`, 'success');
           }
-      } catch(e) {}
+      } catch(e) {
+          isUpdating = false;
+      }
   }
 
   // Trigger instant check 2 seconds after startup
