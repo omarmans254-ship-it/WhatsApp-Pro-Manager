@@ -147,6 +147,17 @@ function isVersionHigher(v1, v2) {
     return false;
 }
 
+function getAppVersion() {
+    try {
+        const pkgPath = path.join(__dirname, 'package.json');
+        if (fs.existsSync(pkgPath)) {
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+            return pkg.version || '2.2.3';
+        }
+    } catch(e) {}
+    return '2.2.3';
+}
+
 // UDP Auto-Discovery Server
 function startUdpServer() {
     stopUdpServer();
@@ -357,27 +368,27 @@ ipcMain.handle('auto-discover-server', async () => {
     });
 });
 
-ipcMain.handle('get-app-version', () => APP_VERSION);
+ipcMain.handle('get-app-version', () => getAppVersion());
 
 ipcMain.handle('check-app-update', async (event, targetIp) => {
     const ip = targetIp || syncTargetIp;
-    if (!ip) return { hasUpdate: false, currentVersion: APP_VERSION };
+    if (!ip) return { hasUpdate: false, currentVersion: getAppVersion() };
     try {
         const responseData = await makeHttpRequest('GET', '/app-version', null, ip);
         const { version: serverVersion } = JSON.parse(responseData);
         
-        if (serverVersion && isVersionHigher(serverVersion, APP_VERSION)) {
+        if (serverVersion && isVersionHigher(serverVersion, getAppVersion())) {
             const updatePkg = await makeHttpRequest('GET', '/update-package', null, ip);
             return {
                 hasUpdate: true,
-                currentVersion: APP_VERSION,
+                currentVersion: getAppVersion(),
                 serverVersion: serverVersion,
                 updateInfo: JSON.parse(updatePkg)
             };
         }
-        return { hasUpdate: false, currentVersion: APP_VERSION, serverVersion };
+        return { hasUpdate: false, currentVersion: getAppVersion(), serverVersion };
     } catch (e) {
-        return { hasUpdate: false, error: e.message, currentVersion: APP_VERSION };
+        return { hasUpdate: false, error: e.message, currentVersion: getAppVersion() };
     }
 });
 
