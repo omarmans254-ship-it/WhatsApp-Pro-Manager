@@ -48,9 +48,21 @@ const trackerServer = http.createServer((req, res) => {
             const url = new URL(req.url, `http://${req.headers.host}`);
             const id = url.searchParams.get('id');
             const loggedIn = url.searchParams.get('loggedIn') === 'true';
-            if (id && accountStates[id]) {
+            if (id) {
+                if (!runningProcesses[id]) {
+                    runningProcesses[id] = { autoDetected: true };
+                }
+                if (!accountStates[id]) {
+                    accountStates[id] = { startTime: Date.now(), loggedIn: loggedIn };
+                }
                 const prevLoggedIn = accountStates[id].loggedIn;
                 accountStates[id].loggedIn = loggedIn;
+                accountStates[id].lastPing = Date.now();
+
+                if (!profileWatchers[id]) {
+                    startProfileWatcher(id);
+                }
+
                 if (!prevLoggedIn && loggedIn) {
                     try {
                         if (Notification.isSupported()) {
@@ -642,8 +654,16 @@ ipcMain.handle('restore-data', async () => {
 // --- Chrome Process Detection Helper ---
 function checkAccountProcess(accountId) {
     return new Promise((resolve) => {
-        const psCmd = `(Get-CimInstance Win32_Process -Filter "name='chrome.exe' and CommandLine like '%${accountId}%'").ProcessId`;
-        execFile('powershell.exe', ['-NoProfile', '-Command', psCmd], { timeout: 3000 }, (err, stdout) => {
+        // If extension is pinging actively within 12 seconds, Chrome is definitely alive
+        const state = accountStates[accountId];
+        if (state && state.lastPing && (Date.now() - state.lastPing < 12000)) {
+            return resolve(true);
+        }
+
+        const script = `Get-CimInstance Win32_Process -Filter "name='chrome.exe'" | Where-Object { $_.CommandLine -like '*${accountId}*' } | Select-Object -ExpandProperty ProcessId`;
+        const buf = Buffer.from(script, 'utf16le').toString('base64');
+
+        execFile('powershell.exe', ['-NoProfile', '-EncodedCommand', buf], { timeout: 5000 }, (err, stdout) => {
             if (err || !stdout) return resolve(false);
             const pids = stdout.trim().split(/\r?\n/).filter(p => p.trim() && !isNaN(p.trim()));
             resolve(pids.length > 0);
@@ -653,24 +673,33 @@ function checkAccountProcess(accountId) {
 
 // --- Profile Watcher: Detects when Chrome truly closes ---
 const profileWatchers = {};
+const consecutiveFailures = {};
 
 function startProfileWatcher(accountId) {
     if (profileWatchers[accountId]) return;
+    consecutiveFailures[accountId] = 0;
 
-    // Wait 4 seconds before starting to watch (give Chrome time to spawn)
+    // Wait 5 seconds before starting to watch (give Chrome time to spawn)
     const startDelay = setTimeout(() => {
         const interval = setInterval(async () => {
             const isAlive = await checkAccountProcess(accountId);
-            if (!isAlive && runningProcesses[accountId]) {
-                delete runningProcesses[accountId];
-                delete accountStates[accountId];
-                clearInterval(interval);
-                delete profileWatchers[accountId];
+            if (!isAlive) {
+                consecutiveFailures[accountId] = (consecutiveFailures[accountId] || 0) + 1;
+                // Require 3 consecutive failed checks before removing from running state
+                if (consecutiveFailures[accountId] >= 3 && runningProcesses[accountId]) {
+                    delete runningProcesses[accountId];
+                    delete accountStates[accountId];
+                    delete consecutiveFailures[accountId];
+                    clearInterval(interval);
+                    delete profileWatchers[accountId];
+                }
+            } else {
+                consecutiveFailures[accountId] = 0;
             }
-        }, 3000);
+        }, 4000);
 
         profileWatchers[accountId] = interval;
-    }, 4000);
+    }, 5000);
 
     profileWatchers[accountId] = startDelay;
 }
@@ -680,6 +709,7 @@ function stopProfileWatcher(accountId) {
         clearTimeout(profileWatchers[accountId]);
         clearInterval(profileWatchers[accountId]);
         delete profileWatchers[accountId];
+        delete consecutiveFailures[accountId];
     }
 }
 
