@@ -528,32 +528,53 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
                     if (res.statusCode === 200) {
                         const release = JSON.parse(data);
                         const latestTag = release.tag_name ? release.tag_name.replace(/^v/, '') : '';
-                        const hasUpdate = isVersionHigher(latestTag, APP_VERSION);
-                        
-                        let downloadUrl = release.html_url || '';
-                        if (release.assets && Array.isArray(release.assets) && release.assets.length > 0) {
-                            const exeAsset = release.assets.find(a => a.name.endsWith('.exe'));
-                            if (exeAsset) downloadUrl = exeAsset.browser_download_url;
+                        if (latestTag && isVersionHigher(latestTag, APP_VERSION)) {
+                            let downloadUrl = release.html_url || '';
+                            if (release.assets && Array.isArray(release.assets) && release.assets.length > 0) {
+                                const exeAsset = release.assets.find(a => a.name.endsWith('.exe'));
+                                if (exeAsset) downloadUrl = exeAsset.browser_download_url;
+                            }
+                            return resolve({
+                                hasUpdate: true,
+                                currentVersion: APP_VERSION,
+                                latestVersion: latestTag,
+                                releaseNotes: release.body || '',
+                                downloadUrl: downloadUrl,
+                                releaseUrl: release.html_url
+                            });
                         }
-                        
-                        resolve({
-                            hasUpdate: hasUpdate,
-                            currentVersion: APP_VERSION,
-                            latestVersion: latestTag,
-                            releaseNotes: release.body || '',
-                            downloadUrl: downloadUrl,
-                            releaseUrl: release.html_url
-                        });
-                        return;
                     }
-                    resolve({ hasUpdate: false, error: `GitHub API status ${res.statusCode}` });
-                } catch(e) {
-                    resolve({ hasUpdate: false, error: e.message });
-                }
+                } catch(e) {}
+
+                // Fallback: Check raw package.json on main branch for latest version
+                const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/package.json`;
+                https.get(rawUrl, { headers: { 'User-Agent': 'WhatsApp-Pro-Manager-App' }, timeout: 5000 }, (rawRes) => {
+                    let rawData = '';
+                    rawRes.on('data', chunk => rawData += chunk);
+                    rawRes.on('end', () => {
+                        try {
+                            if (rawRes.statusCode === 200) {
+                                const pkg = JSON.parse(rawData);
+                                const remoteVersion = pkg.version || '';
+                                if (remoteVersion && isVersionHigher(remoteVersion, APP_VERSION)) {
+                                    return resolve({
+                                        hasUpdate: true,
+                                        currentVersion: APP_VERSION,
+                                        latestVersion: remoteVersion,
+                                        releaseNotes: 'تحديث جديد متوفر على GitHub',
+                                        downloadUrl: `https://github.com/${owner}/${repo}`,
+                                        releaseUrl: `https://github.com/${owner}/${repo}`
+                                    });
+                                }
+                            }
+                        } catch(e) {}
+                        resolve({ hasUpdate: false, currentVersion: APP_VERSION });
+                    }).on('error', () => resolve({ hasUpdate: false, currentVersion: APP_VERSION }));
+                }).on('error', () => resolve({ hasUpdate: false, currentVersion: APP_VERSION }));
             });
         });
-        req.on('error', (err) => resolve({ hasUpdate: false, error: err.message }));
-        req.on('timeout', () => { req.destroy(); resolve({ hasUpdate: false, error: 'Timeout' }); });
+        req.on('error', (err) => resolve({ hasUpdate: false, error: err.message, currentVersion: APP_VERSION }));
+        req.on('timeout', () => { req.destroy(); resolve({ hasUpdate: false, error: 'Timeout', currentVersion: APP_VERSION }); });
     });
 }
 
