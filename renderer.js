@@ -292,7 +292,8 @@ function applyLanguage(lang) {
   const githubUpdateBtn = document.getElementById('github-update-btn');
   if (githubUpdateBtn) {
       githubUpdateBtn.addEventListener('click', async () => {
-          showToast(currentLang === 'ar' ? 'جاري فحص تحديثات GitHub...' : 'Checking GitHub updates...', 'info');
+          showToast(currentLang === 'ar' ? 'جاري فتح صفحة GitHub وفحص التحديثات...' : 'Opening GitHub & checking updates...', 'info');
+          window.electronAPI.openExternal('https://github.com/omarmans254-ship-it/WhatsApp-Pro-Manager/releases');
           await checkForInstantAutoUpdate(true);
       });
   }
