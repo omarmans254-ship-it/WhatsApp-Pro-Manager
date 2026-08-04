@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Notification, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { spawn, exec } = require('child_process');
+const { spawn, exec, execFile } = require('child_process');
 const AdmZip = require('adm-zip');
 const http = require('http');
 const https = require('https');
@@ -407,8 +407,12 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
+    // Clean up all profile watchers
+    for (let id in profileWatchers) {
+        stopProfileWatcher(id);
+    }
     for(let id in runningProcesses) {
-        try { runningProcesses[id].kill(); } catch(e){}
+        try { if (runningProcesses[id].kill) runningProcesses[id].kill(); } catch(e){}
     }
     app.quit();
   }
@@ -635,6 +639,50 @@ ipcMain.handle('restore-data', async () => {
     }
 });
 
+// --- Chrome Process Detection Helper ---
+function checkAccountProcess(accountId) {
+    return new Promise((resolve) => {
+        const psCmd = `(Get-CimInstance Win32_Process -Filter "name='chrome.exe' and CommandLine like '%${accountId}%'").ProcessId`;
+        execFile('powershell.exe', ['-NoProfile', '-Command', psCmd], { timeout: 3000 }, (err, stdout) => {
+            if (err || !stdout) return resolve(false);
+            const pids = stdout.trim().split(/\r?\n/).filter(p => p.trim() && !isNaN(p.trim()));
+            resolve(pids.length > 0);
+        });
+    });
+}
+
+// --- Profile Watcher: Detects when Chrome truly closes ---
+const profileWatchers = {};
+
+function startProfileWatcher(accountId) {
+    if (profileWatchers[accountId]) return;
+
+    // Wait 4 seconds before starting to watch (give Chrome time to spawn)
+    const startDelay = setTimeout(() => {
+        const interval = setInterval(async () => {
+            const isAlive = await checkAccountProcess(accountId);
+            if (!isAlive && runningProcesses[accountId]) {
+                delete runningProcesses[accountId];
+                delete accountStates[accountId];
+                clearInterval(interval);
+                delete profileWatchers[accountId];
+            }
+        }, 3000);
+
+        profileWatchers[accountId] = interval;
+    }, 4000);
+
+    profileWatchers[accountId] = startDelay;
+}
+
+function stopProfileWatcher(accountId) {
+    if (profileWatchers[accountId]) {
+        clearTimeout(profileWatchers[accountId]);
+        clearInterval(profileWatchers[accountId]);
+        delete profileWatchers[accountId];
+    }
+}
+
 // Launch Chrome for a specific account
 ipcMain.handle('launch-chrome', async (event, accountId) => {
     if (!chromeExecutable) return { success: false, error: 'Google Chrome غير مثبت على جهازك، يرجى تثبيته أولاً.' };
@@ -658,8 +706,15 @@ ipcMain.handle('launch-chrome', async (event, accountId) => {
         }, 4000);
     `);
 
+    // Verify if Chrome is actually running for this account
     if (runningProcesses[accountId]) {
-        return { success: true, status: 'ALREADY_RUNNING' };
+        const isStillRunning = await checkAccountProcess(accountId);
+        if (isStillRunning) {
+            return { success: true, status: 'ALREADY_RUNNING' };
+        } else {
+            delete runningProcesses[accountId];
+            delete accountStates[accountId];
+        }
     }
 
     try {
@@ -679,15 +734,14 @@ ipcMain.handle('launch-chrome', async (event, accountId) => {
             `--disable-breakpad`,
             `--renderer-process-limit=2`,
             `--js-flags=--max-old-space-size=256`
-        ]);
+        ], { detached: true, stdio: 'ignore' });
+
+        chromeProcess.unref();
 
         runningProcesses[accountId] = chromeProcess;
         accountStates[accountId] = { startTime: Date.now(), loggedIn: false };
 
-        chromeProcess.on('exit', () => {
-            delete runningProcesses[accountId];
-            delete accountStates[accountId];
-        });
+        startProfileWatcher(accountId);
         
         return { success: true };
     } catch (e) {
@@ -697,16 +751,22 @@ ipcMain.handle('launch-chrome', async (event, accountId) => {
 
 // Stop Chrome for a specific account (without wiping session)
 ipcMain.handle('stop-chrome', async (event, accountId) => {
-    if (runningProcesses[accountId]) {
-        try {
-            runningProcesses[accountId].kill();
-            delete runningProcesses[accountId];
-            delete accountStates[accountId];
-            return { success: true };
-        } catch (e) {
-            return { success: false, error: e.message };
-        }
+    stopProfileWatcher(accountId);
+
+    if (runningProcesses[accountId] && runningProcesses[accountId].kill) {
+        try { runningProcesses[accountId].kill(); } catch (e) {}
     }
+
+    // Kill Chrome processes matching this account ID
+    try {
+        await new Promise((resolve) => {
+            const psCmd = `Get-CimInstance Win32_Process -Filter "name='chrome.exe' and CommandLine like '%${accountId}%'" | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }`;
+            execFile('powershell.exe', ['-NoProfile', '-Command', psCmd], { timeout: 4000 }, () => resolve());
+        });
+    } catch(e) {}
+
+    delete runningProcesses[accountId];
+    delete accountStates[accountId];
     return { success: true };
 });
 
@@ -725,16 +785,43 @@ ipcMain.handle('get-status', (event) => {
 
 // Reset Account Session
 ipcMain.handle('clear-session', async (event, accountId) => {
-    if (runningProcesses[accountId]) {
-        try {
-            runningProcesses[accountId].kill();
-            delete runningProcesses[accountId];
-        } catch(e){}
-    }
-    
-    await new Promise(r => setTimeout(r, 1000));
+    stopProfileWatcher(accountId);
 
     const profilePath = path.join(app.getPath('userData'), 'ChromeProfiles', accountId);
+
+    // Try killing via stored process reference
+    if (runningProcesses[accountId]) {
+        try {
+            if (runningProcesses[accountId].kill) {
+                runningProcesses[accountId].kill();
+            }
+        } catch(e){}
+    }
+
+    // Kill actual Chrome processes using this profile (Windows fork handling)
+    try {
+        await new Promise((resolve) => {
+            exec(`wmic process where "CommandLine like '%${accountId}%'" get ProcessId /format:csv`, (err, stdout) => {
+                if (!err && stdout) {
+                    const lines = stdout.trim().split('\n').filter(l => l.trim());
+                    for (const line of lines) {
+                        const parts = line.trim().split(',');
+                        const pid = parts[parts.length - 1];
+                        if (pid && !isNaN(pid)) {
+                            try { process.kill(parseInt(pid)); } catch(e) {}
+                        }
+                    }
+                }
+                resolve();
+            });
+        });
+    } catch(e) {}
+
+    delete runningProcesses[accountId];
+    delete accountStates[accountId];
+    
+    await new Promise(r => setTimeout(r, 1500));
+
     if (fs.existsSync(profilePath)) {
         try {
             fs.rmSync(profilePath, { recursive: true, force: true });

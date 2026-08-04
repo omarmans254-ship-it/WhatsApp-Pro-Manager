@@ -528,17 +528,26 @@ function applyLanguage(lang) {
     checkboxes.forEach(cb => cb.checked = e.target.checked);
   });
 
-  startSelectedBtn.addEventListener('click', () => {
+  startSelectedBtn.addEventListener('click', async () => {
     const checkedBoxes = document.querySelectorAll('.account-checkbox:checked');
     if (checkedBoxes.length === 0) {
-      showToast('يرجى تحديد حساب واحد على الأقل أولاً.', 'error');
+      showToast(i18n[currentLang].toast_please_select || 'يرجى تحديد حساب واحد على الأقل أولاً.', 'error');
       return;
     }
-    checkedBoxes.forEach(cb => {
+    // Launch accounts sequentially with a delay to avoid Chrome race conditions
+    startSelectedBtn.disabled = true;
+    for (const cb of checkedBoxes) {
       const id = cb.dataset.id;
       const acc = accounts.find(a => a.id === id);
-      if(acc) launchChrome(id, acc.name);
-    });
+      if (acc) {
+        await launchChrome(id, acc.name);
+        // Wait 1.5s between launches to let each Chrome instance fully initialize
+        if (checkedBoxes.length > 1) {
+          await new Promise(r => setTimeout(r, 1500));
+        }
+      }
+    }
+    startSelectedBtn.disabled = false;
   });
 
   if (clearAllBtn) {
