@@ -273,8 +273,8 @@ function applyLanguage(lang) {
               addLog(i18n[currentLang].log_sys, `تم اكتشاف تحديث v${res.latestVersion}. جاري التنزيل والتثبيت التلقائي...`, 'success');
               const dlRes = await window.electronAPI.downloadAndInstallUpdate(res.downloadUrl);
               if (!dlRes.success) {
-                  if (res.downloadUrl) window.electronAPI.openExternal(res.downloadUrl);
                   isUpdating = false;
+                  addLog(i18n[currentLang].log_sys, `فشل التثبيت التلقائي: ${dlRes.error || ''}`, 'error');
               }
           } else if (showNoUpdateToast) {
               showToast(currentLang === 'ar' ? `أنت تستخدم أحدث إصدار v${res.currentVersion || '1.0.0'}` : `You are using the latest version v${res.currentVersion || '1.0.0'}`, 'success');
@@ -292,8 +292,7 @@ function applyLanguage(lang) {
   const githubUpdateBtn = document.getElementById('github-update-btn');
   if (githubUpdateBtn) {
       githubUpdateBtn.addEventListener('click', async () => {
-          showToast(currentLang === 'ar' ? 'جاري فتح صفحة GitHub وفحص التحديثات...' : 'Opening GitHub & checking updates...', 'info');
-          window.electronAPI.openExternal('https://github.com/omarmans254-ship-it/WhatsApp-Pro-Manager/releases');
+          showToast(currentLang === 'ar' ? 'جاري فحص وتنزيل التحديثات في الخلفية...' : 'Checking & downloading updates in background...', 'info');
           await checkForInstantAutoUpdate(true);
       });
   }
