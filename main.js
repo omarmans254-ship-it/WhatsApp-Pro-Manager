@@ -104,7 +104,10 @@ function getAppVersion() {
             if (pkg.version) return pkg.version;
         }
     } catch(e){}
-    return app.getVersion() || '1.0.0';
+    try {
+        return app.getVersion();
+    } catch(e){}
+    return '2.2.4';
 }
 let syncMode = 'LOCAL'; // 'LOCAL', 'SERVER', 'CLIENT'
 let syncTargetIp = '';
@@ -147,17 +150,6 @@ function isVersionHigher(v1, v2) {
     return false;
 }
 
-function getAppVersion() {
-    try {
-        const pkgPath = path.join(__dirname, 'package.json');
-        if (fs.existsSync(pkgPath)) {
-            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-            return pkg.version || '2.2.3';
-        }
-    } catch(e) {}
-    return '2.2.3';
-}
-
 // UDP Auto-Discovery Server
 function startUdpServer() {
     stopUdpServer();
@@ -170,7 +162,7 @@ function startUdpServer() {
                     type: 'WA_SERVER_RESPONSE',
                     ip: localIp,
                     port: SYNC_PORT,
-                    version: APP_VERSION
+                    version: getAppVersion()
                 });
                 const replySocket = dgram.createSocket('udp4');
                 replySocket.send(Buffer.from(response), rinfo.port, rinfo.address, () => {
@@ -205,15 +197,15 @@ const syncServer = http.createServer((req, res) => {
 
     if (req.url === '/ping-client' && req.method === 'GET') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'ok', version: APP_VERSION }));
+        res.end(JSON.stringify({ status: 'ok', version: getAppVersion() }));
     }
     else if (req.url === '/app-version' && req.method === 'GET') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ version: APP_VERSION }));
+        res.end(JSON.stringify({ version: getAppVersion() }));
     }
     else if (req.url === '/update-package' && req.method === 'GET') {
         const updateInfo = {
-            version: APP_VERSION,
+            version: getAppVersion(),
             timestamp: Date.now(),
             status: 'AVAILABLE'
         };
