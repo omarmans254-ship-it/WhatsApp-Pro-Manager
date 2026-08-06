@@ -1,6 +1,6 @@
 {
   "name": "whatsapp-multi-account",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "author": "Antigravity",
   "description": "Multi-account WhatsApp Web Client",
   "main": "main.js",

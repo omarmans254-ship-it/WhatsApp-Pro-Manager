@@ -642,10 +642,10 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
         const repo = 'WhatsApp-Pro-Manager';
 
         // 1. If downloadUrl points directly to a compiled setup .exe file
-        if (downloadUrl && downloadUrl.endsWith('.exe')) {
+        if (downloadUrl && (downloadUrl.endsWith('.exe') || downloadUrl.toLowerCase().includes('.exe'))) {
             const tempExePath = path.join(app.getPath('temp'), `WhatsApp_Setup_${Date.now()}.exe`);
             await downloadFile(downloadUrl, tempExePath);
-            spawn(tempExePath, [], { detached: true, stdio: 'ignore' }).unref();
+            spawn(tempExePath, ['/S'], { detached: true, stdio: 'ignore' }).unref();
             setTimeout(() => { app.quit(); }, 1500);
             return { success: true, mode: 'EXE' };
         }
