@@ -22,11 +22,8 @@ if (fs.existsSync(pendingMainJs)) {
     try { fs.unlinkSync(pendingMainJs); } catch(e) {}
 }
 
-// --- Low Spec & RAM Optimization Switches ---
-app.commandLine.appendSwitch('enable-low-end-device-mode');
-app.commandLine.appendSwitch('renderer-process-limit', '2');
+// --- Performance Optimization Switches ---
 app.commandLine.appendSwitch('disable-gpu-memory-buffer-video-frames');
-app.commandLine.appendSwitch('js-flags', '--max-old-space-size=256');
 
 let mainWindow;
 
@@ -862,9 +859,7 @@ ipcMain.handle('launch-chrome', async (event, accountId) => {
             `--disable-background-networking`,
             `--disable-background-timer-throttling`,
             `--disable-backgrounding-occluded-windows`,
-            `--disable-breakpad`,
-            `--renderer-process-limit=2`,
-            `--js-flags=--max-old-space-size=256`
+            `--disable-breakpad`
         ], { detached: true, stdio: 'ignore' });
 
         chromeProcess.unref();
