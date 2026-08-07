@@ -752,9 +752,9 @@ ipcMain.handle('restore-data', async () => {
 // --- Chrome Process Detection Helper ---
 function checkAccountProcess(accountId) {
     return new Promise((resolve) => {
-        // If extension is pinging actively within 12 seconds, Chrome is definitely alive
+        // If extension is pinging actively within 6 seconds, Chrome is definitely alive
         const state = accountStates[accountId];
-        if (state && state.lastPing && (Date.now() - state.lastPing < 12000)) {
+        if (state && state.lastPing && (Date.now() - state.lastPing < 6000)) {
             return resolve(true);
         }
 
@@ -783,8 +783,8 @@ function startProfileWatcher(accountId) {
             const isAlive = await checkAccountProcess(accountId);
             if (!isAlive) {
                 consecutiveFailures[accountId] = (consecutiveFailures[accountId] || 0) + 1;
-                // Require 3 consecutive failed checks before removing from running state
-                if (consecutiveFailures[accountId] >= 3 && runningProcesses[accountId]) {
+                // Require 2 consecutive failed checks before marking as offline
+                if (consecutiveFailures[accountId] >= 2 && runningProcesses[accountId]) {
                     delete runningProcesses[accountId];
                     delete accountStates[accountId];
                     delete consecutiveFailures[accountId];
@@ -794,7 +794,7 @@ function startProfileWatcher(accountId) {
             } else {
                 consecutiveFailures[accountId] = 0;
             }
-        }, 4000);
+        }, 2000);
 
         profileWatchers[accountId] = interval;
     }, 5000);
