@@ -284,10 +284,7 @@ function applyLanguage(lang) {
       }
   }
 
-  // Trigger instant check 2 seconds after startup
-  setTimeout(() => checkForInstantAutoUpdate(false), 2000);
-  // Check periodically every 5 minutes
-  setInterval(() => checkForInstantAutoUpdate(false), 300000);
+  // Manual Update Trigger Only (prevents infinite relaunch loops)
 
   const githubUpdateBtn = document.getElementById('github-update-btn');
   if (githubUpdateBtn) {

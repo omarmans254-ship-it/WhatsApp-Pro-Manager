@@ -696,13 +696,7 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
             try { mainWindow.webContents.reloadIgnoringCache(); } catch(e){}
         }
 
-        // Relaunch Electron app automatically to load new main.js cleanly
-        setTimeout(() => {
-            try { app.relaunch(); } catch(e){}
-            try { app.quit(); } catch(e){}
-        }, 1500);
-
-        return { success: true, mode: 'SILENT_RELAUNCH', updatedCount, skippedCount };
+        return { success: true, mode: 'RELOAD_WINDOW', updatedCount, skippedCount };
     } catch(e) {
         return { success: false, error: e.message };
     }
