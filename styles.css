@@ -41,6 +41,26 @@ body {
   background: var(--bg-body);
   color: var(--text-main);
   transition: background 0.5s ease;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 25% 25%, var(--neon-cyan-dim) 0%, transparent 45%),
+              radial-gradient(circle at 75% 75%, rgba(0, 255, 136, 0.05) 0%, transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+  animation: floatMesh 18s ease-in-out infinite alternate;
+}
+
+@keyframes floatMesh {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(35px, 30px) rotate(3deg); }
 }
 
 .en-font {
@@ -291,7 +311,69 @@ body {
 
 
 
-/* Status Dot */
+/* Account Avatar with Status Ring */
+.account-avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-ring {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.avatar-ring.ring-running {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green-glow);
+  background: var(--neon-green-dim);
+}
+
+.avatar-ring.ring-waiting {
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  background: rgba(255, 215, 0, 0.08);
+  animation: ringPulse 2s infinite ease-in-out;
+}
+
+.avatar-ring.ring-offline {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.avatar-icon-svg {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.avatar-ring.ring-running .avatar-icon-svg {
+  color: var(--neon-green);
+  filter: drop-shadow(0 0 4px var(--neon-green-glow));
+}
+
+.avatar-ring.ring-waiting .avatar-icon-svg {
+  color: #ffd700;
+}
+
+@keyframes ringPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 215, 0, 0.3); border-color: rgba(255, 215, 0, 0.5); }
+  50% { box-shadow: 0 0 14px rgba(255, 215, 0, 0.8); border-color: #ffd700; }
+}
+
+/* Status Dot (Fallback) */
 .status-dot {
   width: 10px;
   height: 10px;

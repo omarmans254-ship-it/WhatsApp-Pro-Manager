@@ -645,11 +645,22 @@ function applyLanguage(lang) {
         <span class="neon-checkbox"></span>
       `;
 
-      // Status Dot / Indicator
-      const statusDot = document.createElement('div');
-      statusDot.id = `status_${acc.id}`;
-      statusDot.className = 'status-dot' + (isRunning ? ' status-running' : '');
-      statusDot.title = isRunning ? 'المتصفح قيد التشغيل' : 'المتصفح مغلق';
+      // Smart Avatar & Status Ring
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'account-avatar';
+      
+      let ringStatus = 'ring-offline';
+      if (isRunning) {
+        ringStatus = statusObj.loggedIn ? 'ring-running' : 'ring-waiting';
+      }
+      
+      avatarDiv.innerHTML = `
+        <div class="avatar-ring ${ringStatus}" title="${isRunning ? (statusObj.loggedIn ? 'متصل بنجاح' : 'يحتاج مسح كود QR') : 'المتصفح مغلق'}">
+          <svg class="avatar-icon-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.94.55 3.75 1.5 5.29L2 22l4.87-1.47C8.32 21.48 10.1 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.7 0-3.31-.47-4.69-1.29l-.34-.2-2.77.84.84-2.71-.22-.36C3.97 14.9 3.5 13.5 3.5 12c0-4.69 3.81-8.5 8.5-8.5s8.5 3.81 8.5 8.5-3.81 8.5-8.5 8.5zm4.23-6.24c-.23-.12-1.37-.67-1.58-.75-.21-.08-.37-.12-.52.12-.15.23-.6 0.75-.74.91-.14.16-.28.18-.51.06-.23-.12-.97-.36-1.85-1.14-.68-.61-1.14-1.36-1.28-1.59-.14-.23-.01-.36.1-.47.1-.1.23-.27.35-.4.12-.13.16-.22.24-.37.08-.15.04-.28-.02-.4-.06-.12-.52-1.25-.71-1.71-.19-.46-.38-.4-.52-.41h-.44c-.15 0-.4.06-.61.28-.21.23-.81.79-.81 1.93 0 1.14.83 2.25.95 2.41.12.16 1.63 2.49 3.95 3.49.55.24.98.38 1.32.49.56.18 1.07.15 1.47.09.45-.07 1.37-.56 1.56-1.1.19-.54.19-1.01.13-1.1-.06-.09-.2-.14-.43-.26z"/>
+          </svg>
+        </div>
+      `;
 
       // Account Details
       const detailsDiv = document.createElement('div');
@@ -761,7 +772,7 @@ function applyLanguage(lang) {
       actionsDiv.appendChild(deleteBtn);
 
       li.appendChild(checkboxLabel);
-      li.appendChild(statusDot);
+      li.appendChild(avatarDiv);
       li.appendChild(detailsDiv);
       li.appendChild(actionsDiv);
       accountsList.appendChild(li);

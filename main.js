@@ -107,7 +107,7 @@ function getAppVersion() {
     try {
         return app.getVersion();
     } catch(e){}
-    return '2.2.4';
+    return '2.3.0';
 }
 let syncMode = 'LOCAL'; // 'LOCAL', 'SERVER', 'CLIENT'
 let syncTargetIp = '';
