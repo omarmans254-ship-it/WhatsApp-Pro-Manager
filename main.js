@@ -8,13 +8,24 @@ const https = require('https');
 const os = require('os');
 const dgram = require('dgram');
 
-// Apply pending main.js update if available (from previous silent update)
+// --- Prevent App Crashes from Uncaught Errors ---
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled Rejection:', reason);
+});
+
+// Clean pending main.js update file safely
 const pendingMainJs = path.join(__dirname, 'main.js.pending');
 if (fs.existsSync(pendingMainJs)) {
-    try {
-        fs.copyFileSync(pendingMainJs, path.join(__dirname, 'main.js'));
-        fs.unlinkSync(pendingMainJs);
-    } catch(e) { /* ignore */ }
+    try { fs.unlinkSync(pendingMainJs); } catch(e) {}
+}
+
+// Single Instance Lock (prevents duplicate app instances from conflicting)
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+    app.quit();
 }
 
 // --- Low Spec & RAM Optimization Switches ---
@@ -91,6 +102,7 @@ const trackerServer = http.createServer((req, res) => {
         res.end();
     }
 });
+trackerServer.on('error', (e) => console.error('Tracker error:', e));
 trackerServer.listen(0, () => {
     extensionPort = trackerServer.address().port;
 });
@@ -170,6 +182,7 @@ function startUdpServer() {
                 });
             }
         });
+        udpServer.on('error', (e) => { try { udpServer.close(); } catch(err){} });
         udpServer.bind(UDP_PORT, '0.0.0.0');
     } catch(e) {}
 }
@@ -430,6 +443,13 @@ function createWindow() {
     return { action: 'deny' };
   });
 }
+
+app.on('second-instance', () => {
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
+    }
+});
 
 app.whenReady().then(() => {
   createWindow();
