@@ -707,12 +707,12 @@ ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
         // Clean temp zip
         try { fs.unlinkSync(tempZipPath); } catch(e){}
 
-        // Reload window immediately to display new code/version instantly
-        if (mainWindow && mainWindow.webContents) {
+        if (updatedCount > 0 && mainWindow && mainWindow.webContents) {
             try { mainWindow.webContents.reloadIgnoringCache(); } catch(e){}
+            return { success: true, mode: 'RELOAD_WINDOW', updatedCount, skippedCount };
         }
 
-        return { success: true, mode: 'RELOAD_WINDOW', updatedCount, skippedCount };
+        return { success: false, error: 'تطبيق مثبت في النظام - يرجى تشغيل برنامج التثبيت للتحديث', updatedCount, skippedCount };
     } catch(e) {
         return { success: false, error: e.message };
     }
