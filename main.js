@@ -22,12 +22,6 @@ if (fs.existsSync(pendingMainJs)) {
     try { fs.unlinkSync(pendingMainJs); } catch(e) {}
 }
 
-// Single Instance Lock (prevents duplicate app instances from conflicting)
-const gotTheLock = app.requestSingleInstanceLock();
-if (!gotTheLock) {
-    app.quit();
-}
-
 // --- Low Spec & RAM Optimization Switches ---
 app.commandLine.appendSwitch('enable-low-end-device-mode');
 app.commandLine.appendSwitch('renderer-process-limit', '2');
