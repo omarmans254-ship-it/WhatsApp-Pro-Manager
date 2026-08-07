@@ -538,54 +538,52 @@ ipcMain.handle('save-accounts', async (event, accounts) => {
 function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro-Manager') {
     const currentVer = getAppVersion();
     return new Promise((resolve) => {
-        const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
-        const req = https.get(url, {
-            headers: { 'User-Agent': 'WhatsApp-Pro-Manager-App' },
-            timeout: 8000
-        }, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
+        // 1. Check raw package.json on main branch first for live instant update detection
+        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/package.json`;
+        https.get(rawUrl, { headers: { 'User-Agent': 'WhatsApp-Pro-Manager-App' }, timeout: 6000 }, (rawRes) => {
+            let rawData = '';
+            rawRes.on('data', chunk => rawData += chunk);
+            rawRes.on('end', () => {
                 try {
-                    if (res.statusCode === 200) {
-                        const release = JSON.parse(data);
-                        const latestTag = release.tag_name ? release.tag_name.replace(/^v/, '') : '';
-                        if (latestTag && isVersionHigher(latestTag, currentVer)) {
-                            let downloadUrl = release.html_url || '';
-                            if (release.assets && Array.isArray(release.assets) && release.assets.length > 0) {
-                                const exeAsset = release.assets.find(a => a.name.endsWith('.exe'));
-                                if (exeAsset) downloadUrl = exeAsset.browser_download_url;
-                            }
+                    if (rawRes.statusCode === 200) {
+                        const pkg = JSON.parse(rawData);
+                        const remoteVersion = pkg.version || '';
+                        if (remoteVersion && isVersionHigher(remoteVersion, currentVer)) {
                             return resolve({
                                 hasUpdate: true,
                                 currentVersion: currentVer,
-                                latestVersion: latestTag,
-                                releaseNotes: release.body || '',
-                                downloadUrl: downloadUrl,
-                                releaseUrl: release.html_url
+                                latestVersion: remoteVersion,
+                                releaseNotes: `تحديث جديد v${remoteVersion} متوفر على GitHub`,
+                                downloadUrl: `https://github.com/${owner}/${repo}/archive/refs/heads/main.zip`,
+                                releaseUrl: `https://github.com/${owner}/${repo}`
                             });
                         }
                     }
                 } catch(e) {}
 
-                // Fallback: Check raw package.json on main branch for latest version
-                const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/package.json`;
-                https.get(rawUrl, { headers: { 'User-Agent': 'WhatsApp-Pro-Manager-App' }, timeout: 5000 }, (rawRes) => {
-                    let rawData = '';
-                    rawRes.on('data', chunk => rawData += chunk);
-                    rawRes.on('end', () => {
+                // 2. Check latest GitHub Release tag
+                const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+                https.get(url, { headers: { 'User-Agent': 'WhatsApp-Pro-Manager-App' }, timeout: 6000 }, (res) => {
+                    let data = '';
+                    res.on('data', chunk => data += chunk);
+                    res.on('end', () => {
                         try {
-                            if (rawRes.statusCode === 200) {
-                                const pkg = JSON.parse(rawData);
-                                const remoteVersion = pkg.version || '';
-                                if (remoteVersion && isVersionHigher(remoteVersion, currentVer)) {
+                            if (res.statusCode === 200) {
+                                const release = JSON.parse(data);
+                                const latestTag = release.tag_name ? release.tag_name.replace(/^v/, '') : '';
+                                if (latestTag && isVersionHigher(latestTag, currentVer)) {
+                                    let downloadUrl = release.html_url || '';
+                                    if (release.assets && Array.isArray(release.assets) && release.assets.length > 0) {
+                                        const exeAsset = release.assets.find(a => a.name.endsWith('.exe'));
+                                        if (exeAsset) downloadUrl = exeAsset.browser_download_url;
+                                    }
                                     return resolve({
                                         hasUpdate: true,
                                         currentVersion: currentVer,
-                                        latestVersion: remoteVersion,
-                                        releaseNotes: 'تحديث جديد متوفر على GitHub',
-                                        downloadUrl: `https://github.com/${owner}/${repo}`,
-                                        releaseUrl: `https://github.com/${owner}/${repo}`
+                                        latestVersion: latestTag,
+                                        releaseNotes: release.body || '',
+                                        downloadUrl: downloadUrl,
+                                        releaseUrl: release.html_url
                                     });
                                 }
                             }
@@ -594,9 +592,7 @@ function checkGitHubReleases(owner = 'omarmans254-ship-it', repo = 'WhatsApp-Pro
                     }).on('error', () => resolve({ hasUpdate: false, currentVersion: currentVer }));
                 }).on('error', () => resolve({ hasUpdate: false, currentVersion: currentVer }));
             });
-        });
-        req.on('error', (err) => resolve({ hasUpdate: false, error: err.message, currentVersion: currentVer }));
-        req.on('timeout', () => { req.destroy(); resolve({ hasUpdate: false, error: 'Timeout', currentVersion: currentVer }); });
+        }).on('error', () => resolve({ hasUpdate: false, currentVersion: currentVer }));
     });
 }
 
